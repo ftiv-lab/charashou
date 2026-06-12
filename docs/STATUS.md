@@ -3,6 +3,7 @@
 状態の単一原本。新しいセッション/Codexは AGENTS.md の次にここを読む。
 
 ## Done
+- handoffs/0005-template-json-property-panel：固定カードをTemplate型へ移行し、全体テーマ＋項目ごとの内容/スタイル編集パネルを追加。既定見た目と既存の写真/PNG挙動を維持。
 - handoffs/0004-biome-github-actions：Biomeを導入し、GitHub Actionsでlint/test/build/E2EとPages配信を自動化。
 - handoffs/0003-validation-guardrails：Vitest + Playwright最小E2E + `npm run check` / `check:e2e` を追加。手動ブラウザ確認を減らす運用を `docs/validation.md` と `AGENTS.md` に明文化。
 - handoffs/0002-vite-react-ts：Vite ＋ React ＋ TypeScript へ移行。挙動/見た目パリティ、クライアント完結、`npm run build` 成功。
@@ -13,7 +14,7 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- **handoffs/0005**：テンプレJSON化 ＋ プロパティパネル（項目ごとの内容/フォント/サイズ/太さ/色/揃え）＋ 全体テーマ。既定はパリティ。
+- なし
 
 ## Next
 - 0006：写真トリミング/位置/拡大 ＋ アップロード検証 ＋ `toBlob` ＋ 保存中表示。

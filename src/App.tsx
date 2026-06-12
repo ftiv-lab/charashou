@@ -1,16 +1,40 @@
 import { useRef, useState } from "react";
-import { DEFAULT_FIELD_VALUES, type FieldKey } from "./card/fields";
+import {
+  createDefaultTemplate,
+  type FieldKey,
+  type FieldStyle,
+  type ThemeConfig,
+} from "./card/template";
 import { CardPreview } from "./components/CardPreview";
-import { Form } from "./components/Form";
+import { PropertyPanel } from "./components/PropertyPanel";
 import { exportPng } from "./export";
 
 export function App() {
-  const [values, setValues] = useState(DEFAULT_FIELD_VALUES);
+  const [template, setTemplate] = useState(createDefaultTemplate);
   const [photoDataUrl, setPhotoDataUrl] = useState("");
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handleFieldChange = (key: FieldKey, value: string) => {
-    setValues((current) => ({ ...current, [key]: value }));
+    setTemplate((current) => ({
+      ...current,
+      fields: current.fields.map((field) => (field.key === key ? { ...field, value } : field)),
+    }));
+  };
+
+  const handleFieldStyleChange = (key: FieldKey, style: Partial<FieldStyle>) => {
+    setTemplate((current) => ({
+      ...current,
+      fields: current.fields.map((field) =>
+        field.key === key ? { ...field, style: { ...field.style, ...style } } : field,
+      ),
+    }));
+  };
+
+  const handleThemeChange = <Key extends keyof ThemeConfig>(key: Key, value: ThemeConfig[Key]) => {
+    setTemplate((current) => ({
+      ...current,
+      theme: { ...current.theme, [key]: value },
+    }));
   };
 
   const handleExport = async () => {
@@ -30,11 +54,18 @@ export function App() {
       </header>
 
       <main className="app">
-        <Form values={values} onFieldChange={handleFieldChange} onPhotoChange={setPhotoDataUrl} />
+        <PropertyPanel
+          template={template}
+          onFieldValueChange={handleFieldChange}
+          onFieldStyleChange={handleFieldStyleChange}
+          onThemeChange={handleThemeChange}
+          onPhotoChange={setPhotoDataUrl}
+          onReset={() => setTemplate(createDefaultTemplate())}
+        />
 
         <section className="stage">
           <div className="card-wrap">
-            <CardPreview ref={cardRef} values={values} photoDataUrl={photoDataUrl} />
+            <CardPreview ref={cardRef} template={template} photoDataUrl={photoDataUrl} />
           </div>
           <p className="hint">
             左の項目を変えると即反映されます。顔写真もアップロード可。仕上がりは「PNGで保存」で3倍解像度に。
