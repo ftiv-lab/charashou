@@ -1,3 +1,4 @@
 @echo off
 cd /d "%~dp0"
-npm run dev
+rem Vite dev server + auto-open default browser
+npm run dev -- --open
