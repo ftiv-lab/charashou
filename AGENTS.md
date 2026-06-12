@@ -10,13 +10,15 @@
 - 位置づけ：**learn in public の第一作**。完璧より前進。発信（Note）を開発の副産物にする。
 
 ## 技術スタック
-- 現状：**素のHTML/CSS/JS ＋ html2canvas ＋ Noto JPフォント**（ビルド無し・`index.html`直開きで動く）。
-- 将来（Phase 3・任意）：Vite ＋ TypeScript ＋ Vitest ＋ Playwright ＋ Biome（段階導入）。
+- **移行中（決定 2026-06-12）**：**Vite ＋ React ＋ TypeScript**（**クライアント完結・バックエンド無し**）。`html2canvas` でPNG書き出し、Noto JPフォント。`vite.config` の `base:'./'`（Pagesサブパス＋将来のzip/file:// 両対応）。移行は `docs/handoffs/0002` で実施。
+- 旧：素のHTML/CSS/JS（`index.html`/`style.css`/`app.js`）→ React版へ置換。
+- 後続：品質＝**Vitest ＋ Biome ＋ GitHub Actions CI**（`0003`）。E2E＝Playwright（後）。
+- 商品化方針：Booth配布(zip)／**Tauri(.exe)**／テンプレ販売。**バックエンド/認証/DBは入れない**。
 
 ## コマンド
-- 起動：`index.html` をブラウザで開く（`start.bat` / `python -m http.server` でも）。
+- 開発：`npm install` → `npm run dev`（Vite開発サーバ）。ビルド：`npm run build`（`dist/` 出力）。確認：`npm run preview`。
+- （移行完了までの旧版）`index.html` を直接ブラウザで開く。
 - UTF-8読み取り：日本語Markdownが文字化けする場合は `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\read-utf8.ps1 .\AGENTS.md` のように読む。`docs/STATUS.md` や `docs/handoffs/*.md` も同様。
-- （将来）`npm run dev` / `test` / `lint` / `build`。
 
 ## ディレクトリ
 - `index.html` / `style.css` / `app.js` … 本体

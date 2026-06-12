@@ -10,11 +10,12 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- **Phase 1**：描画を純関数に切り出し → Vitest ＋ Biome ＋ GitHub Actions CI（TDD開始）。
+- **handoffs/0002**：**Vite ＋ React ＋ TypeScript へ移行**（クライアント完結・挙動/見た目はパリティ）。決定スタック。
 
 ## Next
+- **handoffs/0003**：Vitest ＋ Biome ＋ GitHub Actions（CI＋**Pagesビルド配信をActions化**。移行後はmain/root配信が効かなくなるため）。
 - Phase 2：Playwright E2E（入力→反映／写真→表示／PNG出力）。
-- カスタム性：テンプレJSON化 → 複数テンプレ → 校章/印アップロード → テンプレ・エディタ。
+- カスタム性：テンプレJSON化 → 複数テンプレ → 校章/印アップロード → テンプレ・エディタ（react-konva）。
 
 ## 保留
 - Phase 3：Vite ＋ TypeScript 移行（意図的な学習回）。
