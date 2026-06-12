@@ -3,6 +3,7 @@
 状態の単一原本。新しいセッション/Codexは AGENTS.md の次にここを読む。
 
 ## Done
+- handoffs/0009-review-screenshots：Playwright専用設定と `npm run shots` で、全体／カスタム／自前生成写真／Transformer＋ガイド／パネルの5枚を固定名生成しREADMEへ埋め込み。検証E2Eとは分離。
 - handoffs/0008-photo-adjust-upload-export：写真のズーム/横位置/縦位置slider、PNG/JPEG/WebP・10MB上限のアップロード検証とaria-liveエラー、保存中表示、Konva toBlob書き出しを実装。
 - handoffs/0007-free-positioning-editor：内容要素(text/写真/校章/印)の選択・ドラッグ・リサイズ、カード／他要素へのスナップとガイドラインを実装。textはscaleをwidth/height/fontSizeへ変換し、frameは固定。操作E2Eも追加。
 - handoffs/0006-konva-render-migration：カード描画をreact-konvaへ移行。座標要素モデル、Konva 3倍PNG、Canvas画像差分E2Eへ切替。対話機能は未実装。
@@ -17,7 +18,7 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- **handoffs/0009**：レビュー用スクショ自動生成（Playwright→`docs/screenshots/` 固定名・上書き）＋README埋め込み。外部AIがGitHubで現状把握＝客観レビュー効率化。
+- 次のhandoff待ち。
 
 ## Next
 - 0010：印・モノグラム校章ジェネレーター（＋アップロード）。

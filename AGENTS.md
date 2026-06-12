@@ -24,6 +24,8 @@
 ## ディレクトリ
 - `index.html` / `src/` … 本体（Vite + React + TypeScript）
 - `e2e/` … Playwright最小E2E
+- `review/` / `playwright.screenshots.config.ts` … READMEレビュー用スクリーンショット生成（検証E2Eとは分離）
+- `docs/screenshots/` … `npm run shots` が固定名で上書きする現状スクリーンショット
 - `.github/workflows/` … CIとGitHub Pages配信
 - `scripts/` … UTF-8安全な読み書き（PowerShell・`read-utf8.ps1` / `append-utf8.ps1`）
 - `docs/STATUS.md` … **状態の単一原本**（Done/Doing/Next/保留）。まず読む。
@@ -57,6 +59,7 @@
 - 手動ブラウザ確認より先に `docs/validation.md` のコマンドを使う。
 - 通常変更：`npm run check`（Biome + Vitest + build）。
 - UI/写真/PNG出力変更：`npm run check:e2e`。
+- レビュー用画像の更新：`npm run shots`。成果物生成専用であり、`check` / `check:e2e` / CIには含めない。
 - Playwright E2Eは dev server を自動起動するため、E2E用に別途 `npm run dev` を常駐させない。
 - dev serverを手で起動した場合、作業終了前に必ず止める。
 - 新しいhandoffには「完了確認コマンド」を必ず書く。

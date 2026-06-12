@@ -1,7 +1,7 @@
 # ハンドオフ 0009 — レビュー用スクリーンショット自動生成 ＋ README埋め込み
 
 - 作成：Claude / 2026-06-12
-- 状態：未着手
+- 状態：実装済み（2026-06-12 / Codex）
 
 ## 目的
 開発段階ごとに**機能を網羅したスクショを Playwright で自動撮影**し、`docs/screenshots/`（**固定ファイル名＝上書き**）＋ README に貼る。**外部AI（ChatGPT等）がGitHubを見るだけで現状の見た目と機能を理解**でき、客観レビューを効率化する。
@@ -34,3 +34,10 @@
 
 ## 完了後
 - `docs/STATUS.md` / `docs/devlog.md` 更新。運用：機能を足したら `npm run shots`→コミット で README が最新化される。
+
+## 実装結果
+- `playwright.screenshots.config.ts` と `review/screenshots.spec.ts` を追加し、通常の `e2e/` とは別のPlaywright実行経路にした。
+- `npm run shots` で `docs/screenshots/01-overview.png` 〜 `05-panel.png` を固定名で上書き生成する。
+- 全体、カスタム、自前生成写真＋クロップ調整、Transformer＋縦横ガイド、全プロパティパネルの5状態を撮影する。
+- READMEに説明付きで5枚を埋め込み、更新コマンドを記載した。
+- CI自動撮影、履歴別アーカイブ、生成機能、複数テンプレは未実装。
