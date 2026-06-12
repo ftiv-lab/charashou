@@ -14,13 +14,14 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- なし
+- **handoffs/0006**：カード描画を **react-konva へ移行**（見た目パリティ＋Konva書き出し・対話はまだ／テスト方式をDOM→Canvasへ移行）。
 
 ## Next
-- 0006：写真トリミング/位置/拡大 ＋ アップロード検証 ＋ `toBlob` ＋ 保存中表示。
-- 0007：印・モノグラム校章ジェネレーター（＋アップロード）。
-- 0008：複数テンプレ（学園/魔法学校/ギルド/サイバー/VTuber…）＋切替＋JSON保存/読込＋localStorage。
-- 後：ビジュアル回帰テスト／WebP・PDF／Tauri／自由配置エディタ。
+- 0007：**自由配置エディタ**（選択/ドラッグ/変形/スナップ/ガイド/ルーラー）。写真配置もここ。
+- 0008：写真のズーム/トリミング ＋ アップロード検証(accept/サイズ/エラー) ＋ 保存中表示。
+- 0009：印・モノグラム校章ジェネレーター（＋アップロード）。
+- 0010：複数テンプレ（学園/魔法学校/ギルド/サイバー/VTuber…）＋切替＋JSON保存/読込＋localStorage。
+- 後：ビジュアル回帰テスト／WebP・PDF／Tauri。
 
 ## 保留
 - Boothでテンプレ販売（収益の芽）。
