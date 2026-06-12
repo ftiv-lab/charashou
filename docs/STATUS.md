@@ -17,11 +17,11 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- 次のhandoff待ち。
+- **handoffs/0009**：レビュー用スクショ自動生成（Playwright→`docs/screenshots/` 固定名・上書き）＋README埋め込み。外部AIがGitHubで現状把握＝客観レビュー効率化。
 
 ## Next
-- 0009：印・モノグラム校章ジェネレーター（＋アップロード）。
-- 0010：複数テンプレ（学園/魔法学校/ギルド/サイバー/VTuber…）＋切替＋JSON保存/読込＋localStorage。
+- 0010：印・モノグラム校章ジェネレーター（＋アップロード）。
+- 0011：複数テンプレ（学園/魔法学校/ギルド/サイバー/VTuber…）＋切替＋JSON保存/読込＋localStorage。
 - 後：ビジュアル回帰テスト／WebP・PDF／Tauri。
 
 ## 保留
