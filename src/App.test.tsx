@@ -1,25 +1,34 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { forwardRef } from "react";
-import { describe, expect, it, vi } from "vitest";
+import type Konva from "konva";
+import { forwardRef, useImperativeHandle } from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "./App";
+import type { PhotoState } from "./card/photo";
 import type { Template, TemplateElementChange } from "./card/template";
+import { exportPng } from "./export";
+
+vi.mock("./export", () => ({ exportPng: vi.fn() }));
 
 vi.mock("./components/CardPreview", () => ({
-  CardPreview: forwardRef(function MockCardPreview({
-    template,
-    photoDataUrl,
-    onElementChange,
-  }: {
-    template: Template;
-    photoDataUrl: string;
-    onElementChange: (id: string, change: TemplateElementChange) => void;
-  }) {
+  CardPreview: forwardRef(function MockCardPreview(
+    {
+      template,
+      photo,
+      onElementChange,
+    }: {
+      template: Template;
+      photo: PhotoState;
+      onElementChange: (id: string, change: TemplateElementChange) => void;
+    },
+    ref,
+  ) {
+    useImperativeHandle(ref, () => ({}) as Konva.Stage);
     return (
       <>
         <div
           data-testid="card-preview-state"
           data-template={JSON.stringify(template)}
-          data-photo={photoDataUrl}
+          data-photo={JSON.stringify(photo)}
         />
         <button
           type="button"
@@ -50,7 +59,18 @@ function fieldValue(template: Template, key: string) {
   return template.fields.find((field) => field.key === key);
 }
 
+function currentPhoto(): PhotoState {
+  const value = screen.getByTestId("card-preview-state").getAttribute("data-photo");
+  if (!value) throw new Error("Photo state was not rendered");
+  return JSON.parse(value) as PhotoState;
+}
+
 describe("App", () => {
+  beforeEach(() => {
+    vi.mocked(exportPng).mockReset();
+    vi.mocked(exportPng).mockResolvedValue();
+  });
+
   it("passes text field edits into the template preview state", () => {
     render(<App />);
 
@@ -93,19 +113,37 @@ describe("App", () => {
     expect(fieldValue(restored, "name")?.style).toBeUndefined();
   });
 
-  it("passes an uploaded photo data URL into the preview", async () => {
+  it("validates uploads and passes photo adjustments into the preview", async () => {
     render(<App />);
 
+    const input = screen.getByLabelText("顔写真");
+    expect(input).toHaveAttribute("accept", "image/png,image/jpeg,image/webp");
+    fireEvent.change(input, {
+      target: {
+        files: [new File(["svg"], "photo.svg", { type: "image/svg+xml" })],
+      },
+    });
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "PNG、JPEG、WebP形式の画像を選択してください。",
+    );
+
     const file = new File(["photo"], "photo.png", { type: "image/png" });
-    fireEvent.change(screen.getByLabelText("顔写真"), {
+    fireEvent.change(input, {
       target: { files: [file] },
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("card-preview-state").getAttribute("data-photo")).toMatch(
-        /^data:image\/png;base64,/,
-      );
+      expect(currentPhoto().dataUrl).toMatch(/^data:image\/png;base64,/);
     });
+    expect(screen.getByRole("alert")).toBeEmptyDOMElement();
+
+    fireEvent.change(screen.getByLabelText("ズーム"), { target: { value: "2" } });
+    fireEvent.change(screen.getByLabelText("横位置"), { target: { value: "0.5" } });
+    fireEvent.change(screen.getByLabelText("縦位置"), { target: { value: "-0.5" } });
+    expect(currentPhoto()).toMatchObject({ zoom: 2, offsetX: 0.5, offsetY: -0.5 });
+
+    fireEvent.click(screen.getByRole("button", { name: "既定に戻す" }));
+    expect(currentPhoto()).toMatchObject({ zoom: 2, offsetX: 0.5, offsetY: -0.5 });
   });
 
   it("stores position and text resize changes from the canvas", () => {
@@ -121,5 +159,38 @@ describe("App", () => {
       height: 52.5,
     });
     expect(fieldValue(template, "name")?.style?.fontSize).toBe(35);
+  });
+
+  it("disables export while saving and announces success", async () => {
+    let finishExport: (() => void) | undefined;
+    vi.mocked(exportPng).mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          finishExport = resolve;
+        }),
+    );
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "PNGで保存" }));
+    expect(screen.getByRole("button", { name: "保存中…" })).toBeDisabled();
+    expect(screen.getByText("保存中です。")).toHaveAttribute("aria-live", "polite");
+
+    finishExport?.();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "PNGで保存" })).toBeEnabled();
+    });
+    expect(screen.getByText("PNGを保存しました。")).toHaveAttribute("aria-live", "polite");
+  });
+
+  it("announces export failures", async () => {
+    vi.mocked(exportPng).mockRejectedValue(new Error("failed"));
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "PNGで保存" }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/PNGの保存に失敗しました/)).toHaveAttribute("aria-live", "polite");
+    });
+    expect(screen.getByRole("button", { name: "PNGで保存" })).toBeEnabled();
   });
 });

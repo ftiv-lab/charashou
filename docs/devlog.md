@@ -3,6 +3,7 @@
 つまづき／学びの逐次メモ（1行でOK・後で Note 化）。新しいものを上に。
 
 ## 2026-06-12
+- 写真調整と安全な書き出し：coverクロップをzoom/offsetで制御するslider、形式/10MB検証、aria-live通知を追加。PNGはtoBlob＋Object URLへ移し、保存中の連打も防止した。
 - 自由配置エディタ：内容要素をKonva Transformerで選択・移動・リサイズ可能にし、カード／他要素へのスナップと操作中ガイドを追加。textはscaleを座標・寸法・fontSizeへ確定してぼけを防ぎ、操作E2Eまで固定した。
 - Konva描画移行：カードを座標要素リストからCanvas描画し、Stageの3倍PNG出力へ変更。テストもDOM文字検索から状態＋Canvas画像差分へ移した。
 - テンプレJSON＋プロパティパネル：既定CSSを上書きしないoptionalなFieldStyleにして、カスタム性と見た目パリティを両立した。

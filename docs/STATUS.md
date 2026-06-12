@@ -3,6 +3,7 @@
 状態の単一原本。新しいセッション/Codexは AGENTS.md の次にここを読む。
 
 ## Done
+- handoffs/0008-photo-adjust-upload-export：写真のズーム/横位置/縦位置slider、PNG/JPEG/WebP・10MB上限のアップロード検証とaria-liveエラー、保存中表示、Konva toBlob書き出しを実装。
 - handoffs/0007-free-positioning-editor：内容要素(text/写真/校章/印)の選択・ドラッグ・リサイズ、カード／他要素へのスナップとガイドラインを実装。textはscaleをwidth/height/fontSizeへ変換し、frameは固定。操作E2Eも追加。
 - handoffs/0006-konva-render-migration：カード描画をreact-konvaへ移行。座標要素モデル、Konva 3倍PNG、Canvas画像差分E2Eへ切替。対話機能は未実装。
 - handoffs/0005-template-json-property-panel：固定カードをTemplate型へ移行し、全体テーマ＋項目ごとの内容/スタイル編集パネルを追加。既定見た目と既存の写真/PNG挙動を維持。
@@ -16,7 +17,7 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- **handoffs/0008**：写真のズーム/位置調整 ＋ アップロード検証(accept/サイズ/エラー+aria-live) ＋ 保存中表示(＋toBlob)。
+- 次のhandoff待ち。
 
 ## Next
 - 0009：印・モノグラム校章ジェネレーター（＋アップロード）。

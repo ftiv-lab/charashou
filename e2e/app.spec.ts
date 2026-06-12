@@ -1,9 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 
-const PNG_BASE64 =
-  "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFElEQVR42mP8z8Dwn4GBgYGJAQoAHxcCAtp6uZQAAAAASUVORK5CYII=";
-
 test("core Konva card workflow stays intact", async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => document.fonts.ready);
@@ -35,13 +32,59 @@ test("core Konva card workflow stays intact", async ({ page }) => {
   await expect(page.getByLabel("透かし文字")).toHaveValue("COROND JOSHI GAKUIN ");
   await expect.poll(async () => Buffer.compare(await canvas.screenshot(), customized)).not.toBe(0);
 
+  const photoBase64 = await page.evaluate(() => {
+    const source = document.createElement("canvas");
+    source.width = 40;
+    source.height = 40;
+    const context = source.getContext("2d");
+    if (!context) throw new Error("Canvas context was not available");
+    for (const [color, x, y] of [
+      ["#ff0000", 0, 0],
+      ["#0000ff", 20, 0],
+      ["#00ff00", 0, 20],
+      ["#ffff00", 20, 20],
+    ] as const) {
+      context.fillStyle = color;
+      context.fillRect(x, y, 20, 20);
+    }
+    return source.toDataURL("image/png").split(",")[1];
+  });
+  const photoInput = page.getByLabel("顔写真");
+  await expect(photoInput).toHaveAttribute("accept", "image/png,image/jpeg,image/webp");
+  await photoInput.setInputFiles({
+    name: "photo.svg",
+    mimeType: "image/svg+xml",
+    buffer: Buffer.from("<svg></svg>"),
+  });
+  const photoError = page.locator(".photo-error");
+  await expect(photoError).toHaveText("PNG、JPEG、WebP形式の画像を選択してください。");
+  await expect(photoError).toHaveAttribute("aria-live", "assertive");
+
   const beforePhoto = await canvas.screenshot();
-  await page.getByLabel("顔写真").setInputFiles({
+  await photoInput.setInputFiles({
     name: "photo.png",
     mimeType: "image/png",
-    buffer: Buffer.from(PNG_BASE64, "base64"),
+    buffer: Buffer.from(photoBase64, "base64"),
   });
+  await expect(photoError).toBeEmpty();
   await expect.poll(async () => Buffer.compare(await canvas.screenshot(), beforePhoto)).not.toBe(0);
+
+  const uploaded = await canvas.screenshot();
+  await page.getByLabel("ズーム").fill("2");
+  await expect.poll(async () => Buffer.compare(await canvas.screenshot(), uploaded)).not.toBe(0);
+  const zoomed = await canvas.screenshot();
+  await page.getByLabel("横位置").fill("1");
+  await expect.poll(async () => Buffer.compare(await canvas.screenshot(), zoomed)).not.toBe(0);
+  const movedHorizontally = await canvas.screenshot();
+  await page.getByLabel("縦位置").fill("-1");
+  await expect
+    .poll(async () => Buffer.compare(await canvas.screenshot(), movedHorizontally))
+    .not.toBe(0);
+
+  await page.getByRole("button", { name: "既定に戻す" }).click();
+  await expect(page.getByLabel("ズーム")).toHaveValue("2");
+  await expect(page.getByLabel("横位置")).toHaveValue("1");
+  await expect(page.getByLabel("縦位置")).toHaveValue("-1");
 
   const cardBox = await card.boundingBox();
   expect(Math.round(cardBox?.width ?? 0)).toBe(680);
@@ -49,6 +92,7 @@ test("core Konva card workflow stays intact", async ({ page }) => {
 
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "PNGで保存" }).click();
+  await expect(page.getByText("PNGを保存しました。")).toHaveAttribute("aria-live", "polite");
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe("charashou.png");
   const downloadPath = await download.path();

@@ -5,9 +5,10 @@ import { exportPng } from "./export";
 describe("exportPng", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
-  it("waits for fonts and downloads a 3x Konva PNG", async () => {
+  it("waits for fonts and downloads a 3x Konva PNG blob", async () => {
     const click = vi
       .spyOn(HTMLAnchorElement.prototype, "click")
       .mockImplementation(() => undefined);
@@ -18,9 +19,12 @@ describe("exportPng", () => {
     };
     const stage = {
       draw: vi.fn(),
-      toDataURL: vi.fn(() => "data:image/png;base64,test"),
+      toBlob: vi.fn(async () => new Blob(["png"], { type: "image/png" })),
       findOne: vi.fn(() => editorLayer),
     } as unknown as Konva.Stage;
+    const createObjectURL = vi.fn(() => "blob:charashou");
+    const revokeObjectURL = vi.fn();
+    vi.stubGlobal("URL", { createObjectURL, revokeObjectURL });
 
     await exportPng(stage);
 
@@ -28,10 +32,12 @@ describe("exportPng", () => {
     expect(editorLayer.hide).toHaveBeenCalledTimes(1);
     expect(editorLayer.show).toHaveBeenCalledTimes(1);
     expect(stage.draw).toHaveBeenCalledTimes(2);
-    expect(stage.toDataURL).toHaveBeenCalledWith({
+    expect(stage.toBlob).toHaveBeenCalledWith({
       pixelRatio: 3,
       mimeType: "image/png",
     });
+    expect(createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
+    expect(revokeObjectURL).toHaveBeenCalledWith("blob:charashou");
     expect(click).toHaveBeenCalledTimes(1);
   });
 });

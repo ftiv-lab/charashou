@@ -8,7 +8,7 @@
 
 ## 使い方
 1. `npm install` → `npm run dev` で開発サーバを起動。
-2. 左の項目を編集、または右の内容要素を選択してドラッグ／リサイズ。顔写真もアップロード可。
+2. 左の項目を編集、または右の内容要素を選択してドラッグ／リサイズ。顔写真はアップロード後にズームと位置を調整可能。
 3. 「PNGで保存」で画像を書き出し（3倍解像度）。
 
 ビルド確認：
@@ -31,7 +31,7 @@ npm run lint:fix
 
 ## 技術
 - Vite ＋ React ＋ TypeScript（クライアント完結）
-- react-konva / KonvaでCanvas描画→3倍PNG
+- react-konva / KonvaでCanvas描画→Blobベースの3倍PNG
 - Biome ＋ Vitest ＋ Playwright最小E2Eで品質と既存挙動を固定
 - GitHub ActionsでCIとGitHub Pages配信
 - フォント：Noto Serif JP / Noto Sans JP（Google Fonts）
@@ -40,6 +40,7 @@ npm run lint:fix
 ### 注意（ハマりどころ）
 - **日本語フォントは読み込み完了を待ってからKonvaを再描画・書き出し**（`await document.fonts.ready`）。待たないと明朝が反映されない。
 - 外部URLの画像はCORSで出力できないことがある → 写真はアップロード（dataURL）でOK。
+- 顔写真はPNG/JPEG/WebP、10MB以下。クロップ調整はパネルのズーム／横位置／縦位置sliderで行う。
 
 ## ロードマップ
 - [ ] 見た目を元イメージにさらに寄せる（位置・フォント・透かし・印）

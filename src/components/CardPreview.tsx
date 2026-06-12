@@ -21,6 +21,7 @@ import {
   snapDragPosition,
   snapResizeBounds,
 } from "../card/editor";
+import { calculatePhotoCrop, type PhotoState } from "../card/photo";
 import {
   getTemplateField,
   type Template,
@@ -31,7 +32,7 @@ import {
 
 type CardPreviewProps = {
   template: Template;
-  photoDataUrl: string;
+  photo: PhotoState;
   onElementChange: (id: string, change: TemplateElementChange) => void;
 };
 
@@ -72,29 +73,6 @@ function useLoadedImage(src: string): HTMLImageElement | undefined {
   }, [src]);
 
   return image;
-}
-
-function coverCrop(image: HTMLImageElement, width: number, height: number) {
-  const targetRatio = width / height;
-  const imageRatio = image.naturalWidth / image.naturalHeight;
-
-  if (imageRatio > targetRatio) {
-    const cropWidth = image.naturalHeight * targetRatio;
-    return {
-      x: (image.naturalWidth - cropWidth) / 2,
-      y: 0,
-      width: cropWidth,
-      height: image.naturalHeight,
-    };
-  }
-
-  const cropHeight = image.naturalWidth / targetRatio;
-  return {
-    x: 0,
-    y: (image.naturalHeight - cropHeight) / 2,
-    width: image.naturalWidth,
-    height: cropHeight,
-  };
 }
 
 function CardText({
@@ -139,11 +117,13 @@ function CardElement({
   element,
   template,
   photo,
+  photoState,
   editableProps,
 }: {
   element: TemplateElement;
   template: Template;
   photo?: HTMLImageElement;
+  photoState: PhotoState;
   editableProps?: EditableNodeProps;
 }) {
   switch (element.kind) {
@@ -240,7 +220,11 @@ function CardElement({
               image={photo}
               width={element.width}
               height={element.height}
-              crop={coverCrop(photo, element.width, element.height)}
+              crop={calculatePhotoCrop(
+                { width: photo.naturalWidth, height: photo.naturalHeight },
+                { width: element.width, height: element.height },
+                photoState,
+              )}
             />
           ) : (
             <Text
@@ -296,10 +280,10 @@ function CardElement({
 }
 
 export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function CardPreview(
-  { template, photoDataUrl, onElementChange },
+  { template, photo: photoState, onElementChange },
   forwardedRef,
 ) {
-  const photo = useLoadedImage(photoDataUrl);
+  const photo = useLoadedImage(photoState.dataUrl);
   const stageRef = useRef<Konva.Stage>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
   const [fontsReady, setFontsReady] = useState(false);
@@ -436,6 +420,7 @@ export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function Ca
               element={element}
               template={template}
               photo={photo}
+              photoState={photoState}
               editableProps={editableProps(element)}
             />
           ))}

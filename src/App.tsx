@@ -1,5 +1,6 @@
 import type Konva from "konva";
 import { useRef, useState } from "react";
+import { DEFAULT_PHOTO_STATE, type PhotoAdjustmentKey, type PhotoState } from "./card/photo";
 import {
   createDefaultTemplate,
   type FieldKey,
@@ -14,7 +15,9 @@ import { exportPng } from "./export";
 
 export function App() {
   const [template, setTemplate] = useState(createDefaultTemplate);
-  const [photoDataUrl, setPhotoDataUrl] = useState("");
+  const [photo, setPhoto] = useState<PhotoState>(DEFAULT_PHOTO_STATE);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportMessage, setExportMessage] = useState("");
   const stageRef = useRef<Konva.Stage>(null);
 
   const handleFieldChange = (key: FieldKey, value: string) => {
@@ -62,9 +65,26 @@ export function App() {
     });
   };
 
+  const handlePhotoUpload = (dataUrl: string) => {
+    setPhoto({ dataUrl, zoom: 1, offsetX: 0, offsetY: 0 });
+  };
+
+  const handlePhotoAdjustment = (key: PhotoAdjustmentKey, value: number) => {
+    setPhoto((current) => ({ ...current, [key]: value }));
+  };
+
   const handleExport = async () => {
-    if (!stageRef.current) return;
-    await exportPng(stageRef.current);
+    if (!stageRef.current || isExporting) return;
+    setIsExporting(true);
+    setExportMessage("保存中です。");
+    try {
+      await exportPng(stageRef.current);
+      setExportMessage("PNGを保存しました。");
+    } catch {
+      setExportMessage("PNGの保存に失敗しました。もう一度お試しください。");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -73,9 +93,20 @@ export function App() {
         <h1>
           キャラ証 <small>charashou</small>
         </h1>
-        <button id="exportBtn" className="btn" type="button" onClick={handleExport}>
-          PNGで保存
-        </button>
+        <div className="export-actions">
+          <button
+            id="exportBtn"
+            className="btn"
+            type="button"
+            onClick={handleExport}
+            disabled={isExporting}
+          >
+            {isExporting ? "保存中…" : "PNGで保存"}
+          </button>
+          <p className="export-status" role="status" aria-live="polite">
+            {exportMessage}
+          </p>
+        </div>
       </header>
 
       <main className="app">
@@ -84,7 +115,9 @@ export function App() {
           onFieldValueChange={handleFieldChange}
           onFieldStyleChange={handleFieldStyleChange}
           onThemeChange={handleThemeChange}
-          onPhotoChange={setPhotoDataUrl}
+          photo={photo}
+          onPhotoUpload={handlePhotoUpload}
+          onPhotoAdjustment={handlePhotoAdjustment}
           onReset={() => setTemplate(createDefaultTemplate())}
         />
 
@@ -93,7 +126,7 @@ export function App() {
             <CardPreview
               ref={stageRef}
               template={template}
-              photoDataUrl={photoDataUrl}
+              photo={photo}
               onElementChange={handleElementChange}
             />
           </div>
