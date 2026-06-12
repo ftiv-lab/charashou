@@ -18,12 +18,12 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- 次のhandoff待ち。
+- **handoffs/0010**：Undo/Redo（`useReducer`で template＋photo の操作履歴・連続入力はcoalesce・Ctrl+Z/Shift+Z）。
 
 ## Next
-- 0010：印・モノグラム校章ジェネレーター（＋アップロード）。
-- 0011：複数テンプレ（学園/魔法学校/ギルド/サイバー/VTuber…）＋切替＋JSON保存/読込＋localStorage。
-- 後：ビジュアル回帰テスト／WebP・PDF／Tauri。
+- 0011：複数テンプレ（学園/魔法学校/ギルド/サイバー/VTuber…）＋**テンプレ毎にフィールド構成**＋切替＋JSON保存/読込＋localStorage。
+- 0012：印・モノグラム校章ジェネレーター（＋アップロード）。
+- 後（レビュー候補）：選択要素の情報表示＋キーボード移動／SNS用書き出し／ビジュアル回帰テスト(`npm run visual`)／WebP・PDF／Tauri。
 
 ## 保留
 - Boothでテンプレ販売（収益の芽）。
