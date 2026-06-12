@@ -13,10 +13,13 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- なし
+- **handoffs/0005**：テンプレJSON化 ＋ プロパティパネル（項目ごとの内容/フォント/サイズ/太さ/色/揃え）＋ 全体テーマ。既定はパリティ。
 
 ## Next
-- カスタム性：テンプレJSON化 → 複数テンプレ → 校章/印アップロード → テンプレ・エディタ（react-konva）。
+- 0006：写真トリミング/位置/拡大 ＋ アップロード検証 ＋ `toBlob` ＋ 保存中表示。
+- 0007：印・モノグラム校章ジェネレーター（＋アップロード）。
+- 0008：複数テンプレ（学園/魔法学校/ギルド/サイバー/VTuber…）＋切替＋JSON保存/読込＋localStorage。
+- 後：ビジュアル回帰テスト／WebP・PDF／Tauri／自由配置エディタ。
 
 ## 保留
 - Boothでテンプレ販売（収益の芽）。
