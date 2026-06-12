@@ -3,6 +3,7 @@
 状態の単一原本。新しいセッション/Codexは AGENTS.md の次にここを読む。
 
 ## Done
+- handoffs/0007-free-positioning-editor：内容要素(text/写真/校章/印)の選択・ドラッグ・リサイズ、カード／他要素へのスナップとガイドラインを実装。textはscaleをwidth/height/fontSizeへ変換し、frameは固定。操作E2Eも追加。
 - handoffs/0006-konva-render-migration：カード描画をreact-konvaへ移行。座標要素モデル、Konva 3倍PNG、Canvas画像差分E2Eへ切替。対話機能は未実装。
 - handoffs/0005-template-json-property-panel：固定カードをTemplate型へ移行し、全体テーマ＋項目ごとの内容/スタイル編集パネルを追加。既定見た目と既存の写真/PNG挙動を維持。
 - handoffs/0004-biome-github-actions：Biomeを導入し、GitHub Actionsでlint/test/build/E2EとPages配信を自動化。
@@ -15,7 +16,7 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- **handoffs/0007**：自由配置エディタ（選択/ドラッグ/変形/スナップ/ガイドライン）。内容要素(text/写真/校章/印)を可動・リサイズ。frame(背景/帯/透かし)は固定。ルーラーは任意。
+- 次のhandoff待ち。
 
 ## Next
 - 0008：写真のズーム/トリミング ＋ アップロード検証(accept/サイズ/エラー) ＋ 保存中表示。

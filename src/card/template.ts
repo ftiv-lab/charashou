@@ -26,7 +26,7 @@ export type FieldSchema = {
   style?: FieldStyle;
 };
 
-type ElementBase = {
+export type ElementBase = {
   id: string;
   x: number;
   y: number;
@@ -83,6 +83,12 @@ export type TemplateElement =
   | CrestElement
   | PhotoElement
   | SealElement;
+
+export type TemplateElementChange = Partial<
+  Pick<ElementBase, "x" | "y" | "width" | "height" | "rotation">
+> & {
+  fontSize?: number;
+};
 
 export type ThemeConfig = {
   cardBg: string;

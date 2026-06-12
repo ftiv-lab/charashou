@@ -2,22 +2,40 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { forwardRef } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { App } from "./App";
-import type { Template } from "./card/template";
+import type { Template, TemplateElementChange } from "./card/template";
 
 vi.mock("./components/CardPreview", () => ({
   CardPreview: forwardRef(function MockCardPreview({
     template,
     photoDataUrl,
+    onElementChange,
   }: {
     template: Template;
     photoDataUrl: string;
+    onElementChange: (id: string, change: TemplateElementChange) => void;
   }) {
     return (
-      <div
-        data-testid="card-preview-state"
-        data-template={JSON.stringify(template)}
-        data-photo={photoDataUrl}
-      />
+      <>
+        <div
+          data-testid="card-preview-state"
+          data-template={JSON.stringify(template)}
+          data-photo={photoDataUrl}
+        />
+        <button
+          type="button"
+          onClick={() =>
+            onElementChange("name", {
+              x: 300,
+              y: 190,
+              width: 315,
+              height: 52.5,
+              fontSize: 35,
+            })
+          }
+        >
+          mock transform
+        </button>
+      </>
     );
   }),
 }));
@@ -88,5 +106,20 @@ describe("App", () => {
         /^data:image\/png;base64,/,
       );
     });
+  });
+
+  it("stores position and text resize changes from the canvas", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "mock transform" }));
+
+    const template = currentTemplate();
+    expect(template.elements.find((element) => element.id === "name")).toMatchObject({
+      x: 300,
+      y: 190,
+      width: 315,
+      height: 52.5,
+    });
+    expect(fieldValue(template, "name")?.style?.fontSize).toBe(35);
   });
 });

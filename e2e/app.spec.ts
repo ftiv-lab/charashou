@@ -57,3 +57,49 @@ test("core Konva card workflow stays intact", async ({ page }) => {
   expect(png.readUInt32BE(16)).toBe(2040);
   expect(png.readUInt32BE(20)).toBe(1290);
 });
+
+test("content elements can be selected, snapped, resized and reset", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+
+  const card = page.getByRole("img", { name: "カードプレビュー" });
+  const canvas = card.locator("canvas").first();
+  const initial = await canvas.screenshot();
+  const cardBox = await card.boundingBox();
+  if (!cardBox) throw new Error("Card preview was not laid out");
+
+  await card.click({ position: { x: 52, y: 46 } });
+  await expect(card).toHaveAttribute("data-selected-element", "crest");
+  await card.click({ position: { x: 95, y: 199 } });
+  await expect(card).toHaveAttribute("data-selected-element", "photo");
+  await card.click({ position: { x: 637, y: 377 } });
+  await expect(card).toHaveAttribute("data-selected-element", "seal");
+  await card.click({ position: { x: 387, y: 205 } });
+  await expect(card).toHaveAttribute("data-selected-element", "name");
+
+  await page.mouse.move(cardBox.x + 387, cardBox.y + 205);
+  await page.mouse.down();
+  await page.mouse.move(cardBox.x + 342, cardBox.y + 205, { steps: 8 });
+  await expect(card).not.toHaveAttribute("data-guide-count", "0");
+  await page.mouse.up();
+  await expect(card).toHaveAttribute("data-guide-count", "0");
+  await expect.poll(async () => Buffer.compare(await canvas.screenshot(), initial)).not.toBe(0);
+  const moved = await canvas.screenshot();
+
+  await page.mouse.move(cardBox.x + 449, cardBox.y + 230);
+  await page.mouse.down();
+  await page.mouse.move(cardBox.x + 479, cardBox.y + 245, { steps: 6 });
+  await page.mouse.up();
+  await expect(page.getByLabel("氏名 サイズ")).not.toHaveValue("");
+  await expect(page.getByLabel("氏名 サイズ")).not.toHaveValue("28");
+  await expect.poll(async () => Buffer.compare(await canvas.screenshot(), moved)).not.toBe(0);
+
+  await page.keyboard.press("Escape");
+  await expect(card).toHaveAttribute("data-selected-element", "");
+  await card.click({ position: { x: 5, y: 5 } });
+  await expect(card).toHaveAttribute("data-selected-element", "");
+
+  await page.getByRole("button", { name: "既定に戻す" }).click();
+  await expect(page.getByLabel("氏名 サイズ")).toHaveValue("");
+  await expect.poll(async () => Buffer.compare(await canvas.screenshot(), initial)).toBe(0);
+});

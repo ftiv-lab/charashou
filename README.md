@@ -8,7 +8,7 @@
 
 ## 使い方
 1. `npm install` → `npm run dev` で開発サーバを起動。
-2. 左の項目を編集 → 右のカードに即反映。顔写真もアップロード可。
+2. 左の項目を編集、または右の内容要素を選択してドラッグ／リサイズ。顔写真もアップロード可。
 3. 「PNGで保存」で画像を書き出し（3倍解像度）。
 
 ビルド確認：
@@ -35,7 +35,7 @@ npm run lint:fix
 - Biome ＋ Vitest ＋ Playwright最小E2Eで品質と既存挙動を固定
 - GitHub ActionsでCIとGitHub Pages配信
 - フォント：Noto Serif JP / Noto Sans JP（Google Fonts）
-- 仕組み：テンプレJSONの座標要素をKonva Stageへ描画。差し替え＝React stateでテキスト/画像/テーマを変える。
+- 仕組み：テンプレJSONの座標要素をKonva Stageへ描画。内容要素は選択・移動・リサイズでき、カード／他要素へスナップする。
 
 ### 注意（ハマりどころ）
 - **日本語フォントは読み込み完了を待ってからKonvaを再描画・書き出し**（`await document.fonts.ready`）。待たないと明朝が反映されない。

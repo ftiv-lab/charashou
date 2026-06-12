@@ -50,6 +50,7 @@
 - TypeScript/TSX/JSON/CSSはBiomeでformat/lintする。手編集後は `npm run lint`、自動修正は `npm run lint:fix`。
 - **日本語フォントは描画前に読込待ち**（`document.fonts.ready` 後にKonva Layerを再描画し、PNG出力前にも待つ）。待たないと明朝が崩れる。
 - 写真は `FileReader`→dataURL（外部URLはCORSで出力不可になり得る）。
+- Konvaの内容要素（text/image/crest/seal）は編集対象、frame（背景/帯/透かし）は固定。text変形はscaleを残さず `width/height/fontSize` へ確定する。選択枠とガイドの `editor-ui` LayerはPNG出力へ含めない。
 
 ## 検証プロトコル（重要）
 - 手動ブラウザ確認より先に `docs/validation.md` のコマンドを使う。
