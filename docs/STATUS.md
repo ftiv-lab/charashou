@@ -15,10 +15,9 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- なし
+- **handoffs/0007**：自由配置エディタ（選択/ドラッグ/変形/スナップ/ガイドライン）。内容要素(text/写真/校章/印)を可動・リサイズ。frame(背景/帯/透かし)は固定。ルーラーは任意。
 
 ## Next
-- 0007：**自由配置エディタ**（選択/ドラッグ/変形/スナップ/ガイド/ルーラー）。写真配置もここ。
 - 0008：写真のズーム/トリミング ＋ アップロード検証(accept/サイズ/エラー) ＋ 保存中表示。
 - 0009：印・モノグラム校章ジェネレーター（＋アップロード）。
 - 0010：複数テンプレ（学園/魔法学校/ギルド/サイバー/VTuber…）＋切替＋JSON保存/読込＋localStorage。
