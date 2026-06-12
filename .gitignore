@@ -1,0 +1,9 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+
+# 出力物・素材の一時置き場（必要に応じて）
+/out/
+*.local.*
