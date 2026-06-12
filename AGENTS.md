@@ -54,6 +54,7 @@
 - 写真は `FileReader`→dataURL（外部URLはCORSで出力不可になり得る）。
 - 写真アップロードはPNG/JPEG/WebP・10MB以下をFileReader前に検証し、`zoom/offsetX/offsetY` はパネルsliderで調整する。キャンバスドラッグは写真枠の移動であり、画像内部のパンには使わない。
 - Konvaの内容要素（text/image/crest/seal）は編集対象、frame（背景/帯/透かし）は固定。text変形はscaleを残さず `width/height/fontSize` へ確定する。選択枠とガイドの `editor-ui` LayerはPNG出力へ含めない。
+- 編集ドキュメント（`template`＋`photo`）は `src/card/history.ts` の履歴reducerで管理する。連続入力／sliderはmergeKeyでまとめ、drag/resize・upload・resetは独立履歴。選択・保存中表示などのUI状態は履歴へ入れない。
 
 ## 検証プロトコル（重要）
 - 手動ブラウザ確認より先に `docs/validation.md` のコマンドを使う。

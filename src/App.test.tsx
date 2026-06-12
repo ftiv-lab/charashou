@@ -74,11 +74,36 @@ describe("App", () => {
   it("passes text field edits into the template preview state", () => {
     render(<App />);
 
+    expect(screen.getByRole("button", { name: "Undo" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Redo" })).toBeDisabled();
+
     fireEvent.change(screen.getByLabelText("氏名"), {
       target: { value: "朝霞 ひより" },
     });
 
     expect(fieldValue(currentTemplate(), "name")?.value).toBe("朝霞 ひより");
+    expect(screen.getByRole("button", { name: "Undo" })).toBeEnabled();
+  });
+
+  it("coalesces consecutive field input and supports buttons and keyboard shortcuts", () => {
+    render(<App />);
+    const nameInput = screen.getByLabelText("氏名");
+
+    fireEvent.change(nameInput, { target: { value: "朝霞" } });
+    fireEvent.change(nameInput, { target: { value: "朝霞 ひより" } });
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(nameInput).toHaveValue("白峰 雪菜");
+    expect(screen.getByRole("button", { name: "Undo" })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Redo" }));
+    expect(nameInput).toHaveValue("朝霞 ひより");
+    fireEvent.keyDown(window, { key: "z", ctrlKey: true });
+    expect(nameInput).toHaveValue("白峰 雪菜");
+    fireEvent.keyDown(window, { key: "z", ctrlKey: true, shiftKey: true });
+    expect(nameInput).toHaveValue("朝霞 ひより");
+    fireEvent.keyDown(window, { key: "z", ctrlKey: true });
+    fireEvent.keyDown(window, { key: "y", ctrlKey: true });
+    expect(nameInput).toHaveValue("朝霞 ひより");
   });
 
   it("passes theme and field style edits, then restores defaults", () => {
@@ -111,6 +136,15 @@ describe("App", () => {
     expect(restored.theme.bandColor).toBe("#fbe2ec");
     expect(restored.theme.watermarkText).toBe("COROND JOSHI GAKUIN ");
     expect(fieldValue(restored, "name")?.style).toBeUndefined();
+
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    const undoReset = currentTemplate();
+    expect(undoReset.theme.bandColor).toBe("#123456");
+    expect(undoReset.theme.watermarkText).toBe("");
+    expect(fieldValue(undoReset, "name")?.style).toMatchObject({
+      fontSize: 32,
+      align: "right",
+    });
   });
 
   it("validates uploads and passes photo adjustments into the preview", async () => {
@@ -137,7 +171,13 @@ describe("App", () => {
     });
     expect(screen.getByRole("alert")).toBeEmptyDOMElement();
 
+    const uploadedDataUrl = currentPhoto().dataUrl;
+    fireEvent.change(screen.getByLabelText("ズーム"), { target: { value: "1.5" } });
     fireEvent.change(screen.getByLabelText("ズーム"), { target: { value: "2" } });
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(currentPhoto()).toMatchObject({ dataUrl: uploadedDataUrl, zoom: 1 });
+    fireEvent.click(screen.getByRole("button", { name: "Redo" }));
+    expect(currentPhoto()).toMatchObject({ dataUrl: uploadedDataUrl, zoom: 2 });
     fireEvent.change(screen.getByLabelText("横位置"), { target: { value: "0.5" } });
     fireEvent.change(screen.getByLabelText("縦位置"), { target: { value: "-0.5" } });
     expect(currentPhoto()).toMatchObject({ zoom: 2, offsetX: 0.5, offsetY: -0.5 });
@@ -159,6 +199,21 @@ describe("App", () => {
       height: 52.5,
     });
     expect(fieldValue(template, "name")?.style?.fontSize).toBe(35);
+
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(currentTemplate().elements.find((element) => element.id === "name")).toMatchObject({
+      x: 282,
+      y: 184,
+      width: 210,
+      height: 42,
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Redo" }));
+    expect(currentTemplate().elements.find((element) => element.id === "name")).toMatchObject({
+      x: 300,
+      y: 190,
+      width: 315,
+      height: 52.5,
+    });
   });
 
   it("disables export while saving and announces success", async () => {

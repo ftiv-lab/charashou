@@ -102,6 +102,43 @@ test("core Konva card workflow stays intact", async ({ page }) => {
   expect(png.readUInt32BE(20)).toBe(1290);
 });
 
+test("undo and redo coalesce edits and support keyboard shortcuts", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+
+  const undo = page.getByRole("button", { name: "Undo" });
+  const redo = page.getByRole("button", { name: "Redo" });
+  const name = page.getByLabel("氏名", { exact: true });
+  await expect(undo).toBeDisabled();
+  await expect(redo).toBeDisabled();
+
+  await name.click();
+  await page.keyboard.press("Control+A");
+  await name.pressSequentially("Asaka Hiyori");
+  await expect(name).toHaveValue("Asaka Hiyori");
+  await undo.click();
+  await expect(name).toHaveValue("白峰 雪菜");
+  await expect(undo).toBeDisabled();
+  await redo.click();
+  await expect(name).toHaveValue("Asaka Hiyori");
+
+  const bandColor = page.getByLabel("帯の色");
+  await bandColor.fill("#123456");
+  await page.keyboard.press("Control+Z");
+  await expect(bandColor).toHaveValue("#fbe2ec");
+  await page.keyboard.press("Control+Shift+Z");
+  await expect(bandColor).toHaveValue("#123456");
+  await page.keyboard.press("Control+Z");
+  await page.keyboard.press("Control+Y");
+  await expect(bandColor).toHaveValue("#123456");
+
+  await page.getByRole("button", { name: "既定に戻す" }).click();
+  await expect(name).toHaveValue("白峰 雪菜");
+  await undo.click();
+  await expect(name).toHaveValue("Asaka Hiyori");
+  await expect(bandColor).toHaveValue("#123456");
+});
+
 test("content elements can be selected, snapped, resized and reset", async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => document.fonts.ready);
@@ -129,6 +166,14 @@ test("content elements can be selected, snapped, resized and reset", async ({ pa
   await expect(card).toHaveAttribute("data-guide-count", "0");
   await expect.poll(async () => Buffer.compare(await canvas.screenshot(), initial)).not.toBe(0);
   const moved = await canvas.screenshot();
+
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect.poll(async () => Buffer.compare(await canvas.screenshot(), moved)).not.toBe(0);
+  await expect(page.getByRole("button", { name: "Undo" })).toBeDisabled();
+  await expect(card).toHaveAttribute("data-selected-element", "name");
+  await page.getByRole("button", { name: "Redo" }).click();
+  await expect.poll(async () => Buffer.compare(await canvas.screenshot(), moved)).toBe(0);
+  await expect(card).toHaveAttribute("data-selected-element", "name");
 
   await page.mouse.move(cardBox.x + 449, cardBox.y + 230);
   await page.mouse.down();

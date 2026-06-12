@@ -3,6 +3,7 @@
 つまづき／学びの逐次メモ（1行でOK・後で Note 化）。新しいものを上に。
 
 ## 2026-06-12
+- Undo/Redo：template＋photoを純粋historyReducerへ移し、past/present/futureを50件上限で管理。同一入力とsliderはmergeKeyでまとめ、drag/resize・upload・resetは独立履歴、選択は履歴外に保った。
 - レビュー用スクショ自動生成：検証E2Eとは別のPlaywright設定で5状態を固定名出力しREADMEへ埋め込み。写真素材もCanvasで自前生成し、`npm run shots` だけで現状レビュー資料を更新できるようにした。
 - 写真調整と安全な書き出し：coverクロップをzoom/offsetで制御するslider、形式/10MB検証、aria-live通知を追加。PNGはtoBlob＋Object URLへ移し、保存中の連打も防止した。
 - 自由配置エディタ：内容要素をKonva Transformerで選択・移動・リサイズ可能にし、カード／他要素へのスナップと操作中ガイドを追加。textはscaleを座標・寸法・fontSizeへ確定してぼけを防ぎ、操作E2Eまで固定した。

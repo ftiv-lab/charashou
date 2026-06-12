@@ -67,14 +67,49 @@ body {
   background: var(--accent-hover);
 }
 .btn:disabled {
-  cursor: wait;
+  cursor: not-allowed;
   opacity: 0.65;
 }
+.export-button:disabled {
+  cursor: wait;
+}
+.topbar-actions,
+.history-actions,
 .export-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 10px;
+}
+.topbar-actions {
+  justify-content: flex-end;
+  min-width: 0;
+}
+.history-actions {
+  gap: 6px;
+}
+.history-btn {
+  min-width: 66px;
+  height: 36px;
+  padding: 0 12px;
+  color: var(--text);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.history-btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+.history-btn:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.export-actions {
+  justify-content: flex-end;
   min-height: 38px;
 }
 .export-status {
@@ -84,6 +119,7 @@ body {
   font-size: 12px;
 }
 .btn:focus-visible,
+.history-btn:focus-visible,
 .field input:focus-visible,
 .field textarea:focus-visible,
 .field select:focus-visible,
@@ -331,6 +367,17 @@ body {
     width: 100%;
     align-items: stretch;
     flex-direction: column;
+  }
+  .topbar-actions {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .history-actions {
+    width: 100%;
+  }
+  .history-btn {
+    flex: 1;
   }
   .btn {
     width: 100%;

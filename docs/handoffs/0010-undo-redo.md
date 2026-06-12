@@ -1,7 +1,7 @@
 # ハンドオフ 0010 — Undo/Redo（操作履歴）
 
 - 作成：Claude / 2026-06-12
-- 状態：未着手
+- 状態：実装済み（2026-06-12 / Codex）
 
 ## 目的
 編集を**いつでも戻せる/やり直せる**ようにする＝安心して触れるエディタに。`useReducer` で「ドキュメント（`template`＋`photo`）」の**操作履歴（past/present/future）**を持つ。
@@ -57,3 +57,11 @@
 
 ## 完了後
 - `docs/STATUS.md` / `docs/devlog.md` 更新。
+
+## 実装結果
+- `src/card/history.ts` に `EditorDocument` と純粋な `historyReducer` を追加し、past/present/future、mergeKey、50件上限を実装した。
+- field/style/theme/photo sliderは対象別mergeKeyでcoalesceし、写真upload・要素drag/resize・resetは独立履歴にした。
+- Appを `useReducer` 配線へ移し、Undo/Redoボタンと `Ctrl+Z` / `Ctrl+Shift+Z` / `Ctrl+Y` を追加した。IME変換中はショートカットを処理しない。
+- 「既定に戻す」は写真状態を保ったままテンプレを戻す既存挙動を維持し、Undo可能なRESETとして積む。
+- selection、保存中表示、通知は履歴外。複数テンプレ、生成機能、SNS書き出しは未実装。
+- reducer単体テストと、coalesce／ボタン／ショートカット／Reset／drag履歴／selection維持のE2Eを追加した。
