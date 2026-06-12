@@ -31,14 +31,14 @@ npm run lint:fix
 
 ## 技術
 - Vite ＋ React ＋ TypeScript（クライアント完結）
-- [html2canvas](https://html2canvas.hertzen.com/) でDOM→PNG
+- react-konva / KonvaでCanvas描画→3倍PNG
 - Biome ＋ Vitest ＋ Playwright最小E2Eで品質と既存挙動を固定
 - GitHub ActionsでCIとGitHub Pages配信
 - フォント：Noto Serif JP / Noto Sans JP（Google Fonts）
-- 仕組み：カードを**HTMLの絶対配置要素**で組み、そのDOMをそのまま画像化。差し替え＝React stateでテキスト/画像の値を変える。
+- 仕組み：テンプレJSONの座標要素をKonva Stageへ描画。差し替え＝React stateでテキスト/画像/テーマを変える。
 
 ### 注意（ハマりどころ）
-- **日本語フォントは読み込み完了を待ってからキャプチャ**（`await document.fonts.ready`）。待たないと明朝が反映されない。
+- **日本語フォントは読み込み完了を待ってからKonvaを再描画・書き出し**（`await document.fonts.ready`）。待たないと明朝が反映されない。
 - 外部URLの画像はCORSで出力できないことがある → 写真はアップロード（dataURL）でOK。
 
 ## ロードマップ

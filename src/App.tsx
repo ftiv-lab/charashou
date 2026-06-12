@@ -1,3 +1,4 @@
+import type Konva from "konva";
 import { useRef, useState } from "react";
 import {
   createDefaultTemplate,
@@ -12,7 +13,7 @@ import { exportPng } from "./export";
 export function App() {
   const [template, setTemplate] = useState(createDefaultTemplate);
   const [photoDataUrl, setPhotoDataUrl] = useState("");
-  const cardRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<Konva.Stage>(null);
 
   const handleFieldChange = (key: FieldKey, value: string) => {
     setTemplate((current) => ({
@@ -38,8 +39,8 @@ export function App() {
   };
 
   const handleExport = async () => {
-    if (!cardRef.current) return;
-    await exportPng(cardRef.current);
+    if (!stageRef.current) return;
+    await exportPng(stageRef.current);
   };
 
   return (
@@ -65,7 +66,7 @@ export function App() {
 
         <section className="stage">
           <div className="card-wrap">
-            <CardPreview ref={cardRef} template={template} photoDataUrl={photoDataUrl} />
+            <CardPreview ref={stageRef} template={template} photoDataUrl={photoDataUrl} />
           </div>
           <p className="hint">
             左の項目を変えると即反映されます。顔写真もアップロード可。仕上がりは「PNGで保存」で3倍解像度に。

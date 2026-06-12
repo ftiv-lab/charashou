@@ -26,6 +26,8 @@ describe("DEFAULT_TEMPLATE", () => {
       "issuer",
     ]);
     expect(DEFAULT_TEMPLATE.fields.every((field) => field.style === undefined)).toBe(true);
+    expect(DEFAULT_TEMPLATE.elements.map((element) => element.id)).toContain("photo");
+    expect(DEFAULT_TEMPLATE.elements.filter((element) => element.kind === "text")).toHaveLength(14);
   });
 
   it("creates an editable copy of the default template", () => {
@@ -33,5 +35,6 @@ describe("DEFAULT_TEMPLATE", () => {
     getTemplateField(template, "name").value = "変更後";
 
     expect(getTemplateField(DEFAULT_TEMPLATE, "name").value).toBe("白峰 雪菜");
+    expect(template.elements).not.toBe(DEFAULT_TEMPLATE.elements);
   });
 });

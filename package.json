@@ -20,9 +20,10 @@
     "ci": "biome ci . && npm run test && npm run build && npm run e2e"
   },
   "dependencies": {
-    "html2canvas": "^1.4.1",
+    "konva": "^10.3.0",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "react-konva": "^19.2.5"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",

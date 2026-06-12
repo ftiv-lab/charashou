@@ -1,19 +1,49 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { forwardRef } from "react";
+import { describe, expect, it, vi } from "vitest";
 import { App } from "./App";
+import type { Template } from "./card/template";
+
+vi.mock("./components/CardPreview", () => ({
+  CardPreview: forwardRef(function MockCardPreview({
+    template,
+    photoDataUrl,
+  }: {
+    template: Template;
+    photoDataUrl: string;
+  }) {
+    return (
+      <div
+        data-testid="card-preview-state"
+        data-template={JSON.stringify(template)}
+        data-photo={photoDataUrl}
+      />
+    );
+  }),
+}));
+
+function currentTemplate(): Template {
+  const value = screen.getByTestId("card-preview-state").getAttribute("data-template");
+  if (!value) throw new Error("Template state was not rendered");
+  return JSON.parse(value) as Template;
+}
+
+function fieldValue(template: Template, key: string) {
+  return template.fields.find((field) => field.key === key);
+}
 
 describe("App", () => {
-  it("reflects text field edits into the card preview", () => {
+  it("passes text field edits into the template preview state", () => {
     render(<App />);
 
     fireEvent.change(screen.getByLabelText("氏名"), {
       target: { value: "朝霞 ひより" },
     });
 
-    expect(document.querySelector('[data-field="name"]')).toHaveTextContent("朝霞 ひより");
+    expect(fieldValue(currentTemplate(), "name")?.value).toBe("朝霞 ひより");
   });
 
-  it("reflects theme and field style edits, then restores defaults", () => {
+  it("passes theme and field style edits, then restores defaults", () => {
     render(<App />);
 
     fireEvent.change(screen.getByLabelText("帯の色"), {
@@ -29,20 +59,23 @@ describe("App", () => {
       target: { value: "" },
     });
 
-    const card = document.querySelector<HTMLElement>("#card");
-    const name = document.querySelector<HTMLElement>('[data-field="name"]');
-    expect(card?.style.getPropertyValue("--pink")).toBe("#123456");
-    expect(name).toHaveStyle({ fontSize: "32px", textAlign: "right" });
-    expect(document.querySelector("#wm")).toBeEmptyDOMElement();
+    const changed = currentTemplate();
+    expect(changed.theme.bandColor).toBe("#123456");
+    expect(changed.theme.watermarkText).toBe("");
+    expect(fieldValue(changed, "name")?.style).toMatchObject({
+      fontSize: 32,
+      align: "right",
+    });
 
     fireEvent.click(screen.getByRole("button", { name: "既定に戻す" }));
 
-    expect(card?.style.getPropertyValue("--pink")).toBe("#fbe2ec");
-    expect(name).not.toHaveStyle({ fontSize: "32px", textAlign: "right" });
-    expect(document.querySelector("#wm")).toHaveTextContent("COROND JOSHI GAKUIN");
+    const restored = currentTemplate();
+    expect(restored.theme.bandColor).toBe("#fbe2ec");
+    expect(restored.theme.watermarkText).toBe("COROND JOSHI GAKUIN ");
+    expect(fieldValue(restored, "name")?.style).toBeUndefined();
   });
 
-  it("loads an uploaded photo as a data URL", async () => {
+  it("passes an uploaded photo data URL into the preview", async () => {
     render(<App />);
 
     const file = new File(["photo"], "photo.png", { type: "image/png" });
@@ -51,9 +84,9 @@ describe("App", () => {
     });
 
     await waitFor(() => {
-      const photo = document.querySelector<HTMLImageElement>("#photo");
-      expect(photo).toHaveClass("on");
-      expect(photo?.src).toMatch(/^data:image\/png;base64,/);
+      expect(screen.getByTestId("card-preview-state").getAttribute("data-photo")).toMatch(
+        /^data:image\/png;base64,/,
+      );
     });
   });
 });

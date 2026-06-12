@@ -1,16 +1,14 @@
-import html2canvas from "html2canvas";
+import type Konva from "konva";
 
-export async function exportPng(node: HTMLElement): Promise<void> {
+export async function exportPng(stage: Konva.Stage): Promise<void> {
   await document.fonts.ready;
-
-  const canvas = await html2canvas(node, {
-    scale: 3,
-    backgroundColor: "#ffffff",
-    useCORS: true,
-  });
+  stage.draw();
 
   const a = document.createElement("a");
-  a.href = canvas.toDataURL("image/png");
+  a.href = stage.toDataURL({
+    pixelRatio: 3,
+    mimeType: "image/png",
+  });
   a.download = "charashou.png";
   a.click();
 }

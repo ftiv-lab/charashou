@@ -10,7 +10,7 @@
 - 位置づけ：**learn in public の第一作**。完璧より前進。発信（Note）を開発の副産物にする。
 
 ## 技術スタック
-- **Vite ＋ React ＋ TypeScript**（**クライアント完結・バックエンド無し**）。`html2canvas` でPNG書き出し、Noto JPフォント。`vite.config` の `base:'./'`（Pagesサブパス＋将来のzip/file:// 両対応）。
+- **Vite ＋ React ＋ TypeScript ＋ react-konva**（**クライアント完結・バックエンド無し**）。Konva Stageでカード描画・3倍PNG書き出し、Noto JPフォント。`vite.config` の `base:'./'`（Pagesサブパス＋将来のzip/file:// 両対応）。
 - 旧：素のHTML/CSS/JS（`index.html`/`style.css`/`app.js`）→ React版へ置換。
 - 品質：**Biome** ＋ **Vitest**（unit/component）＋ **Playwright最小E2E**。検証ルールは `docs/validation.md`。
 - CI/配信：GitHub Actionsで品質ゲートを実行し、main成功時にViteの `dist/` をGitHub Pagesへ配信。
@@ -48,7 +48,7 @@
 - **文字コード＝UTF-8（BOM無し）**。**`.bat` はASCIIのみ**（日本語コメント禁止）。ファイル追記は `scripts/append-utf8.ps1` を使う。
 - 変更は**小さく**。既存のスタイル・命名に合わせる。
 - TypeScript/TSX/JSON/CSSはBiomeでformat/lintする。手編集後は `npm run lint`、自動修正は `npm run lint:fix`。
-- **日本語フォントは描画前に読込待ち**（`await document.fonts.ready` の後に html2canvas。待たないと明朝が崩れる）。
+- **日本語フォントは描画前に読込待ち**（`document.fonts.ready` 後にKonva Layerを再描画し、PNG出力前にも待つ）。待たないと明朝が崩れる。
 - 写真は `FileReader`→dataURL（外部URLはCORSで出力不可になり得る）。
 
 ## 検証プロトコル（重要）

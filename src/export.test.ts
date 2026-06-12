@@ -1,30 +1,27 @@
-import html2canvas from "html2canvas";
+import type Konva from "konva";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { exportPng } from "./export";
-
-vi.mock("html2canvas", () => ({
-  default: vi.fn(async () => ({
-    toDataURL: () => "data:image/png;base64,test",
-  })),
-}));
 
 describe("exportPng", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("waits for fonts and downloads a scaled PNG", async () => {
+  it("waits for fonts and downloads a 3x Konva PNG", async () => {
     const click = vi
       .spyOn(HTMLAnchorElement.prototype, "click")
       .mockImplementation(() => undefined);
-    const node = document.createElement("div");
+    const stage = {
+      draw: vi.fn(),
+      toDataURL: vi.fn(() => "data:image/png;base64,test"),
+    } as unknown as Konva.Stage;
 
-    await exportPng(node);
+    await exportPng(stage);
 
-    expect(html2canvas).toHaveBeenCalledWith(node, {
-      scale: 3,
-      backgroundColor: "#ffffff",
-      useCORS: true,
+    expect(stage.draw).toHaveBeenCalledTimes(1);
+    expect(stage.toDataURL).toHaveBeenCalledWith({
+      pixelRatio: 3,
+      mimeType: "image/png",
     });
     expect(click).toHaveBeenCalledTimes(1);
   });
