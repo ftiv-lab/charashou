@@ -15,6 +15,7 @@
 
 ## コマンド
 - 起動：`index.html` をブラウザで開く（`start.bat` / `python -m http.server` でも）。
+- UTF-8読み取り：日本語Markdownが文字化けする場合は `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\read-utf8.ps1 .\AGENTS.md` のように読む。`docs/STATUS.md` や `docs/handoffs/*.md` も同様。
 - （将来）`npm run dev` / `test` / `lint` / `build`。
 
 ## ディレクトリ
