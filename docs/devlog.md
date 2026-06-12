@@ -3,6 +3,7 @@
 つまづき／学びの逐次メモ（1行でOK・後で Note 化）。新しいものを上に。
 
 ## 2026-06-12
+- **CI緑化＆Actions配信開始**：移行一式(0002-0004)をClaude検証(`npm run check`緑)→公開。途中で **`npm ci` が失敗**＝Windows生成のlockに**Linux用オプション依存(@emnapi)が無い**クロスOS問題。→ **CIを `npm install` に変更**で解決。Actions（lint+test+build+E2E→Pages）全緑。
 - Biome＋GitHub Actions導入：ローカルとCIの品質ゲートを揃え、main成功時にViteの `dist/` をPages配信する構成へ。
 - 検証ガードレール追加：手動ブラウザ確認で重くなったため、`npm run check` と最小E2E `npm run check:e2e` を先に回す運用へ変更。
 - Vite＋React＋TS移行完了：FIELD配列を型付き単一ソース化し、カードDOMはrefでPNG出力。見た目は旧CSSを `src/index.css` に移してパリティ維持。
