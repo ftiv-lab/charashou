@@ -7,20 +7,35 @@
 > （汎用「学生証メーカー」と違い、創作者の設定資料用途に寄せていく方針）
 
 ## 使い方
-1. `index.html` をブラウザで開く（ダブルクリックでOK）。
+1. `npm install` → `npm run dev` で開発サーバを起動。
 2. 左の項目を編集 → 右のカードに即反映。顔写真もアップロード可。
 3. 「PNGで保存」で画像を書き出し（3倍解像度）。
 
-ローカルサーバで開くなら：
+ビルド確認：
 ```bash
-python -m http.server   # → http://localhost:8000
+npm run check
+npm run build
+npm run preview
+```
+
+UI/写真/PNG出力を触った時：
+```bash
+npm run check:e2e
+```
+
+整形・lint：
+```bash
+npm run lint
+npm run lint:fix
 ```
 
 ## 技術
-- 素のHTML/CSS/JS（フレームワーク無し）
+- Vite ＋ React ＋ TypeScript（クライアント完結）
 - [html2canvas](https://html2canvas.hertzen.com/) でDOM→PNG
+- Biome ＋ Vitest ＋ Playwright最小E2Eで品質と既存挙動を固定
+- GitHub ActionsでCIとGitHub Pages配信
 - フォント：Noto Serif JP / Noto Sans JP（Google Fonts）
-- 仕組み：カードを**HTMLの絶対配置要素**で組み、そのDOMをそのまま画像化。差し替え＝テキスト/画像の値を変えるだけ。
+- 仕組み：カードを**HTMLの絶対配置要素**で組み、そのDOMをそのまま画像化。差し替え＝React stateでテキスト/画像の値を変える。
 
 ### 注意（ハマりどころ）
 - **日本語フォントは読み込み完了を待ってからキャプチャ**（`await document.fonts.ready`）。待たないと明朝が反映されない。
@@ -35,4 +50,5 @@ python -m http.server   # → http://localhost:8000
 
 ## メモ
 - 設計の詳細：`SPEC.md`
+- 検証ルール：`docs/validation.md`
 - これは FTIVision とは**別プロジェクト**（独立リポジトリ）。

@@ -1,59 +1,16 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>キャラ証 — charashou</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>キャラ証 — charashou</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<header class="topbar">
-  <h1>キャラ証 <small>charashou</small></h1>
-  <button id="exportBtn" class="btn">PNGで保存</button>
-</header>
-
-<main class="app">
-  <!-- 左：入力フォーム（app.js が生成） -->
-  <section class="panel" id="form"></section>
-
-  <!-- 右：カードのプレビュー（このDOMをそのままPNG化する） -->
-  <section class="stage">
-    <div class="card-wrap">
-      <div id="card">
-        <div class="wm" id="wm"></div>
-        <div class="band"></div>
-
-        <header class="chead">
-          <div class="crest" id="crest">CR</div>
-          <div class="school">
-            <div class="school-jp" data-field="schoolName">私立コロンド女子学院</div>
-            <div class="school-en" data-field="schoolRoman">SHIRITSU COROND JOSHI GAKUIN</div>
-          </div>
-        </header>
-
-        <div class="cbody">
-          <div class="photo"><img id="photo" alt=""><span class="photo-ph">PHOTO</span></div>
-          <div class="info">
-            <div class="title" data-field="title">学生証</div>
-            <div class="row"><span class="lbl">学　年</span><span class="val" data-field="grade">高等部　2年A組</span></div>
-            <div class="row"><span class="lbl">氏　名</span><span class="val name"><b data-field="name">白峰 雪菜</b><i data-field="nameRoman">shiramine yukina</i></span></div>
-            <div class="row"><span class="lbl">生年月日</span><span class="val" data-field="birth">××××年2月9日</span></div>
-            <div class="row"><span class="lbl">有効期限</span><span class="val" data-field="expiry">××××年3月31日</span></div>
-          </div>
-        </div>
-
-        <div class="statement" data-field="statement">上記の者は本院の学生であることを証明する</div>
-        <div class="issuer"><span data-field="issuer">私立コロンド女子学院長</span><span class="seal">学院長<br>之印</span></div>
-      </div>
-    </div>
-    <p class="hint">左の項目を変えると即反映されます。顔写真もアップロード可。仕上がりは「PNGで保存」で3倍解像度に。</p>
-  </section>
-</main>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="app.js"></script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

@@ -10,21 +10,25 @@
 - 位置づけ：**learn in public の第一作**。完璧より前進。発信（Note）を開発の副産物にする。
 
 ## 技術スタック
-- **移行中（決定 2026-06-12）**：**Vite ＋ React ＋ TypeScript**（**クライアント完結・バックエンド無し**）。`html2canvas` でPNG書き出し、Noto JPフォント。`vite.config` の `base:'./'`（Pagesサブパス＋将来のzip/file:// 両対応）。移行は `docs/handoffs/0002` で実施。
+- **Vite ＋ React ＋ TypeScript**（**クライアント完結・バックエンド無し**）。`html2canvas` でPNG書き出し、Noto JPフォント。`vite.config` の `base:'./'`（Pagesサブパス＋将来のzip/file:// 両対応）。
 - 旧：素のHTML/CSS/JS（`index.html`/`style.css`/`app.js`）→ React版へ置換。
-- 後続：品質＝**Vitest ＋ Biome ＋ GitHub Actions CI**（`0003`）。E2E＝Playwright（後）。
+- 品質：**Biome** ＋ **Vitest**（unit/component）＋ **Playwright最小E2E**。検証ルールは `docs/validation.md`。
+- CI/配信：GitHub Actionsで品質ゲートを実行し、main成功時にViteの `dist/` をGitHub Pagesへ配信。
 - 商品化方針：Booth配布(zip)／**Tauri(.exe)**／テンプレ販売。**バックエンド/認証/DBは入れない**。
 
 ## コマンド
 - 開発：`npm install` → `npm run dev`（Vite開発サーバ）。ビルド：`npm run build`（`dist/` 出力）。確認：`npm run preview`。
-- （移行完了までの旧版）`index.html` を直接ブラウザで開く。
+- 検証：通常は `npm run check`。UI/写真/PNG出力に触れたら `npm run check:e2e`。整形は `npm run format`、CI相当は `npm run ci`。
 - UTF-8読み取り：日本語Markdownが文字化けする場合は `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\read-utf8.ps1 .\AGENTS.md` のように読む。`docs/STATUS.md` や `docs/handoffs/*.md` も同様。
 
 ## ディレクトリ
-- `index.html` / `style.css` / `app.js` … 本体
+- `index.html` / `src/` … 本体（Vite + React + TypeScript）
+- `e2e/` … Playwright最小E2E
+- `.github/workflows/` … CIとGitHub Pages配信
 - `scripts/` … UTF-8安全な読み書き（PowerShell・`read-utf8.ps1` / `append-utf8.ps1`）
 - `docs/STATUS.md` … **状態の単一原本**（Done/Doing/Next/保留）。まず読む。
 - `docs/handoffs/` … **1スライス1ブリーフ**（実装依頼。文脈をinlineで含む）
+- `docs/validation.md` … **検証ルール**（手動ブラウザ確認を増やさないためのコマンド運用）
 - `docs/devlog.md` … つまづき/学びの逐次メモ（発信の素）
 - `SPEC.md` … カードの仕様・フィールド
 
@@ -43,11 +47,21 @@
 ## コーディング規約
 - **文字コード＝UTF-8（BOM無し）**。**`.bat` はASCIIのみ**（日本語コメント禁止）。ファイル追記は `scripts/append-utf8.ps1` を使う。
 - 変更は**小さく**。既存のスタイル・命名に合わせる。
+- TypeScript/TSX/JSON/CSSはBiomeでformat/lintする。手編集後は `npm run lint`、自動修正は `npm run lint:fix`。
 - **日本語フォントは描画前に読込待ち**（`await document.fonts.ready` の後に html2canvas。待たないと明朝が崩れる）。
 - 写真は `FileReader`→dataURL（外部URLはCORSで出力不可になり得る）。
 
+## 検証プロトコル（重要）
+- 手動ブラウザ確認より先に `docs/validation.md` のコマンドを使う。
+- 通常変更：`npm run check`（Biome + Vitest + build）。
+- UI/写真/PNG出力変更：`npm run check:e2e`。
+- Playwright E2Eは dev server を自動起動するため、E2E用に別途 `npm run dev` を常駐させない。
+- dev serverを手で起動した場合、作業終了前に必ず止める。
+- 新しいhandoffには「完了確認コマンド」を必ず書く。
+- GitHub上の最終ゲートは `.github/workflows/ci-pages.yml`。Claudeレビュー時はActions結果も確認する。
+
 ## Done の定義
-- ブリーフの受け入れ基準を満たす／既存機能（編集→反映・写真アップ・PNG保存）が壊れていない／（将来）lint緑・test緑・build成功。
+- ブリーフの受け入れ基準を満たす／既存機能（編集→反映・写真アップ・PNG保存）が壊れていない／必要な確認コマンド（通常 `npm run check`、UI系 `npm run check:e2e`）が成功。
 
 ## さらに深い背景（人間/Claude用・Codexは読めなくてよい）
 - 壁打ち記録・競合・設計プラン：`E:\IdeaLab\2026-06-12-charashou-*.md`、発信/学習：`E:\IdeaLab\charashou\`。

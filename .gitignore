@@ -7,3 +7,11 @@ desktop.ini
 # 出力物・素材の一時置き場（必要に応じて）
 /out/
 *.local.*
+
+# Node / Vite
+node_modules/
+dist/
+*.log
+*.tsbuildinfo
+playwright-report/
+test-results/
