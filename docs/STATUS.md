@@ -16,10 +16,9 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- 次のhandoff待ち。
+- **handoffs/0008**：写真のズーム/位置調整 ＋ アップロード検証(accept/サイズ/エラー+aria-live) ＋ 保存中表示(＋toBlob)。
 
 ## Next
-- 0008：写真のズーム/トリミング ＋ アップロード検証(accept/サイズ/エラー) ＋ 保存中表示。
 - 0009：印・モノグラム校章ジェネレーター（＋アップロード）。
 - 0010：複数テンプレ（学園/魔法学校/ギルド/サイバー/VTuber…）＋切替＋JSON保存/読込＋localStorage。
 - 後：ビジュアル回帰テスト／WebP・PDF／Tauri。
