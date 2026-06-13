@@ -310,7 +310,8 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "校章 シールド" }));
     fireEvent.click(screen.getByRole("button", { name: "印 証明印" }));
     fireEvent.click(screen.getByRole("button", { name: "透かし モノグラム" }));
-    fireEvent.click(screen.getByRole("button", { name: "背景 ロゼット" }));
+    fireEvent.click(screen.getByRole("button", { name: "背景 ストライプ" }));
+    fireEvent.change(screen.getByLabelText("地紋 間隔"), { target: { value: "42" } });
 
     const changed = currentTemplate();
     expect(changed.elements.find((element) => element.kind === "crest")?.generator).toMatchObject({
@@ -325,18 +326,59 @@ describe("App", () => {
     ).toMatchObject({ text: "CR ", angle: -30 });
     expect(changed.elements.find((element) => element.kind === "pattern")?.generator).toMatchObject(
       {
-        kind: "rosette",
+        kind: "stripe",
+        spacing: 42,
       },
     );
-    expect(screen.getByRole("button", { name: "背景 ロゼット" })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: "背景 ストライプ" })).toHaveAttribute(
       "aria-pressed",
-      "true",
+      "false",
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Undo" }));
     expect(
       currentTemplate().elements.find((element) => element.kind === "pattern")?.generator,
-    ).toMatchObject({ kind: "stripe" });
+    ).toMatchObject({ kind: "stripe", spacing: 30 });
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(
+      currentTemplate().elements.find((element) => element.kind === "pattern")?.generator,
+    ).toMatchObject({ kind: "rosetteLite" });
+  });
+
+  it("edits every background pattern kind and supports theme-linked color", () => {
+    render(<App />);
+    selectPanelTab("デザイン");
+
+    const type = screen.getByLabelText("地紋 種類");
+    fireEvent.change(type, { target: { value: "repeatText" } });
+    fireEvent.change(screen.getByLabelText("地紋 テキスト"), {
+      target: { value: "CHARACTER FILE" },
+    });
+    fireEvent.change(screen.getByLabelText("地紋 角度"), { target: { value: "-18" } });
+    fireEvent.change(screen.getByLabelText("地紋 間隔"), { target: { value: "74" } });
+    fireEvent.change(screen.getByLabelText("地紋 濃さ"), { target: { value: "0.08" } });
+
+    expect(
+      currentTemplate().elements.find((element) => element.kind === "pattern")?.generator,
+    ).toMatchObject({
+      kind: "repeatText",
+      text: "CHARACTER FILE",
+      angle: -18,
+      spacing: 74,
+      opacity: 0.08,
+    });
+
+    fireEvent.click(screen.getByLabelText("テーマ色を使用"));
+    fireEvent.change(screen.getByLabelText("地紋 色"), { target: { value: "#456789" } });
+    expect(
+      currentTemplate().elements.find((element) => element.kind === "pattern")?.generator,
+    ).toMatchObject({ color: "#456789" });
+
+    fireEvent.change(type, { target: { value: "dots" } });
+    expect(screen.getByLabelText("地紋 半径")).toBeVisible();
+    fireEvent.change(type, { target: { value: "rosetteLite" } });
+    expect(screen.getByLabelText("地紋 ループ数")).toBeVisible();
+    expect(screen.getByLabelText("地紋 振幅")).toBeVisible();
   });
 
   it("validates uploads and passes photo adjustments into the preview", async () => {

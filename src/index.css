@@ -336,6 +336,32 @@ body {
   outline: 2px solid var(--warn);
   outline-offset: 2px;
 }
+.pattern-generator {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.pattern-generator h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+}
+.pattern-theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.pattern-theme-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
 .control-row {
   display: flex;
   align-items: center;

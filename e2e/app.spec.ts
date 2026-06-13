@@ -159,7 +159,7 @@ test("undo and redo coalesce edits and support keyboard shortcuts", async ({ pag
   await expect(bandColor).toHaveValue("#123456");
 });
 
-test("decoration presets persist and are included in PNG export", async ({ page }) => {
+test("editable background patterns persist and are included in PNG export", async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => document.fonts.ready);
 
@@ -172,7 +172,14 @@ test("decoration presets persist and are included in PNG export", async ({ page 
   await page.getByRole("button", { name: "校章 シールド" }).click();
   await page.getByRole("button", { name: "印 証明印" }).click();
   await page.getByRole("button", { name: "透かし モノグラム" }).click();
-  await page.getByRole("button", { name: "背景 ロゼット" }).click();
+  await page.getByRole("button", { name: "背景 ストライプ" }).click();
+  await page.getByLabel("地紋 種類").selectOption("repeatText");
+  await page.getByLabel("地紋 テキスト").fill("CHARACTER FILE");
+  await page.getByLabel("地紋 角度").fill("-18");
+  await page.getByLabel("地紋 間隔").fill("74");
+  await page.getByLabel("地紋 濃さ").fill("0.08");
+  await page.getByLabel("テーマ色を使用").uncheck();
+  await page.getByLabel("地紋 色").fill("#456789");
   await expect
     .poll(async () => Buffer.compare(await canvas.screenshot(), initialCanvas))
     .not.toBe(0);
@@ -196,10 +203,13 @@ test("decoration presets persist and are included in PNG export", async ({ page 
     "aria-pressed",
     "true",
   );
-  await expect(page.getByRole("button", { name: "背景 ロゼット" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
+  await expect(page.getByLabel("地紋 種類")).toHaveValue("repeatText");
+  await expect(page.getByLabel("地紋 テキスト")).toHaveValue("CHARACTER FILE");
+  await expect(page.getByLabel("地紋 角度")).toHaveValue("-18");
+  await expect(page.getByLabel("地紋 間隔")).toHaveValue("74");
+  await expect(page.getByLabel("地紋 濃さ")).toHaveValue("0.08");
+  await expect(page.getByLabel("テーマ色を使用")).not.toBeChecked();
+  await expect(page.getByLabel("地紋 色")).toHaveValue("#456789");
 
   const restoredPng = await downloadPng(page);
   expect(Buffer.compare(restoredPng, initialPng)).not.toBe(0);

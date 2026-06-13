@@ -1,9 +1,13 @@
 import type {
+  DotsPatternGenerator,
   MonogramCrestGenerator,
   PatternElement,
   PatternGenerator,
+  RepeatTextPatternGenerator,
   RepeatTextWatermarkGenerator,
+  RosetteLitePatternGenerator,
   RoundSealGenerator,
+  StripePatternGenerator,
   Template,
 } from "./template";
 
@@ -29,9 +33,53 @@ export const DEFAULT_WATERMARK_GENERATOR: RepeatTextWatermarkGenerator = {
 
 export const DEFAULT_PATTERN_GENERATOR: PatternGenerator = {
   type: "pattern",
-  kind: "stripe",
-  opacity: 0.055,
+  kind: "rosetteLite",
+  loops: 10,
+  radius: 20,
+  amplitude: 2.5,
+  strokeWidth: 0.5,
+  opacity: 0.05,
 };
+
+export type PatternKind = PatternGenerator["kind"];
+
+export function createPatternGenerator(kind: "repeatText"): RepeatTextPatternGenerator;
+export function createPatternGenerator(kind: "stripe"): StripePatternGenerator;
+export function createPatternGenerator(kind: "dots"): DotsPatternGenerator;
+export function createPatternGenerator(kind: "rosetteLite"): RosetteLitePatternGenerator;
+export function createPatternGenerator(kind: PatternKind): PatternGenerator;
+export function createPatternGenerator(kind: PatternKind): PatternGenerator {
+  switch (kind) {
+    case "repeatText":
+      return {
+        type: "pattern",
+        kind,
+        text: "CHARACTER ID ",
+        angle: -24,
+        spacing: 88,
+        opacity: 0.055,
+      };
+    case "stripe":
+      return {
+        type: "pattern",
+        kind,
+        angle: 32,
+        spacing: 30,
+        strokeWidth: 0.5,
+        opacity: 0.045,
+      };
+    case "dots":
+      return {
+        type: "pattern",
+        kind,
+        spacing: 30,
+        radius: 1.25,
+        opacity: 0.065,
+      };
+    case "rosetteLite":
+      return { ...DEFAULT_PATTERN_GENERATOR };
+  }
+}
 
 export function createDefaultPatternElement(): PatternElement {
   return {
@@ -99,16 +147,16 @@ export const WATERMARK_PRESETS: Preset<RepeatTextWatermarkGenerator>[] = [
 ];
 
 export const PATTERN_PRESETS: Preset<PatternGenerator>[] = [
-  { id: "stripe", label: "ストライプ", generator: { ...DEFAULT_PATTERN_GENERATOR } },
+  { id: "rosette", label: "ロゼット", generator: { ...DEFAULT_PATTERN_GENERATOR } },
+  {
+    id: "stripe",
+    label: "ストライプ",
+    generator: createPatternGenerator("stripe"),
+  },
   {
     id: "dot",
     label: "ドット",
-    generator: { type: "pattern", kind: "dot", opacity: 0.1 },
-  },
-  {
-    id: "rosette",
-    label: "ロゼット",
-    generator: { type: "pattern", kind: "rosette", opacity: 0.09 },
+    generator: createPatternGenerator("dots"),
   },
 ];
 
@@ -151,51 +199,139 @@ export function getCrestOutlinePoints(
 }
 
 export type PatternMark =
-  | { id: string; kind: "line"; points: number[]; tension?: number }
+  | {
+      id: string;
+      kind: "line";
+      x: number;
+      y: number;
+      rotation: number;
+      points: number[];
+      strokeWidth: number;
+    }
   | { id: string; kind: "dot"; x: number; y: number; radius: number }
-  | { id: string; kind: "rosette"; x: number; y: number };
+  | {
+      id: string;
+      kind: "text";
+      x: number;
+      y: number;
+      rotation: number;
+      text: string;
+      fontSize: number;
+    }
+  | { id: string; kind: "rosette"; points: number[]; strokeWidth: number };
 
 export function createPatternMarks(
   generator: PatternGenerator,
   width: number,
   height: number,
 ): PatternMark[] {
-  if (generator.kind === "stripe") {
-    return Array.from({ length: Math.ceil((width + height) / 34) + 1 }, (_, index) => {
-      const start = -height + index * 34;
-      return {
-        id: `stripe-${start}`,
-        kind: "line" as const,
-        points: [start, 0, start + height, height],
-      };
-    });
-  }
-  if (generator.kind === "dot") {
-    return Array.from({ length: Math.ceil(height / 28) }, (_, row) =>
-      Array.from({ length: Math.ceil(width / 28) }, (_, column) => {
-        const x = 14 + column * 28;
-        const y = 14 + row * 28;
-        return { id: `dot-${x}-${y}`, kind: "dot" as const, x, y, radius: 1.8 };
+  if (generator.kind === "repeatText") {
+    const spacing = Math.max(32, generator.spacing);
+    return Array.from({ length: Math.ceil(height / spacing) + 2 }, (_, row) =>
+      Array.from({ length: Math.ceil(width / spacing) + 2 }, (_, column) => {
+        const x = -spacing + column * spacing + (row % 2) * (spacing / 2);
+        const y = -spacing + row * spacing;
+        return {
+          id: `text-${x}-${y}`,
+          kind: "text" as const,
+          x,
+          y,
+          rotation: generator.angle,
+          text: generator.text,
+          fontSize: Math.max(8, spacing * 0.16),
+        };
       }),
     ).flat();
   }
-  if (generator.kind === "wave") {
-    return Array.from({ length: Math.ceil(height / 30) }, (_, row) => {
-      const baseY = 15 + row * 30;
-      const points = Array.from({ length: Math.ceil(width / 16) + 1 }, (_, column) => {
-        const x = column * 16;
-        return [x, baseY + Math.sin(column * 0.9) * 4];
-      }).flat();
-      return { id: `wave-${baseY}`, kind: "line" as const, points, tension: 0.45 };
-    });
+  if (generator.kind === "stripe") {
+    const spacing = Math.max(8, generator.spacing);
+    const diagonal = Math.hypot(width, height) * 1.4;
+    const count = Math.ceil((diagonal * 2) / spacing) + 1;
+    return [generator.angle, generator.angle + 90].flatMap((rotation, direction) =>
+      Array.from({ length: count }, (_, index) => {
+        const offset = -diagonal + index * spacing;
+        return {
+          id: `stripe-${direction}-${offset}`,
+          kind: "line" as const,
+          x: width / 2,
+          y: height / 2,
+          rotation,
+          points: [offset, -diagonal, offset, diagonal],
+          strokeWidth: generator.strokeWidth,
+        };
+      }),
+    );
   }
-  return Array.from({ length: Math.ceil(height / 72) }, (_, row) =>
-    Array.from({ length: Math.ceil(width / 72) }, (_, column) => {
-      const x = 36 + column * 72;
-      const y = 36 + row * 72;
-      return { id: `rosette-${x}-${y}`, kind: "rosette" as const, x, y };
+  if (generator.kind === "dots") {
+    const spacing = Math.max(8, generator.spacing);
+    return Array.from({ length: Math.ceil(height / spacing) + 1 }, (_, row) =>
+      Array.from({ length: Math.ceil(width / spacing) + 1 }, (_, column) => {
+        const x = spacing / 2 + column * spacing;
+        const y = spacing / 2 + row * spacing;
+        return { id: `dot-${x}-${y}`, kind: "dot" as const, x, y, radius: generator.radius };
+      }),
+    ).flat();
+  }
+
+  const tileSize = Math.max(24, (generator.radius + generator.amplitude) * 2 + 16);
+  return Array.from({ length: Math.ceil(height / tileSize) + 1 }, (_, row) =>
+    Array.from({ length: Math.ceil(width / tileSize) + 1 }, (_, column) => {
+      const centerX = tileSize / 2 + column * tileSize;
+      const centerY = tileSize / 2 + row * tileSize;
+      const steps = Math.max(72, generator.loops * 14);
+      const points = Array.from({ length: steps + 1 }, (_, step) => {
+        const angle = (step / steps) * Math.PI * 2;
+        const radius = generator.radius + Math.sin(angle * generator.loops) * generator.amplitude;
+        return [centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius];
+      }).flat();
+      return {
+        id: `rosette-${centerX}-${centerY}`,
+        kind: "rosette" as const,
+        points,
+        strokeWidth: generator.strokeWidth,
+      };
     }),
   ).flat();
+}
+
+export function normalizePatternGenerator(value: unknown): PatternGenerator {
+  if (!value || typeof value !== "object") return { ...DEFAULT_PATTERN_GENERATOR };
+  const source = value as Record<string, unknown>;
+  const opacity = typeof source.opacity === "number" ? source.opacity : undefined;
+  const color = typeof source.color === "string" ? source.color : undefined;
+  const kind = source.kind;
+
+  if (kind === "repeatText" || kind === "stripe" || kind === "dots" || kind === "rosetteLite") {
+    return {
+      ...createPatternGenerator(kind),
+      ...source,
+      type: "pattern",
+      kind,
+    } as PatternGenerator;
+  }
+  const legacyValues = {
+    ...(opacity === undefined ? {} : { opacity }),
+    ...(color === undefined ? {} : { color }),
+  };
+  if (kind === "dot") return { ...createPatternGenerator("dots"), ...legacyValues };
+  if (kind === "rosette") {
+    return { ...createPatternGenerator("rosetteLite"), ...legacyValues };
+  }
+  if (kind === "wave") {
+    const stripe = createPatternGenerator("stripe");
+    if (stripe.kind !== "stripe") return stripe;
+    return { ...stripe, angle: 0, ...legacyValues };
+  }
+  return { ...createPatternGenerator("stripe"), ...legacyValues };
+}
+
+export function updatePatternGenerator(template: Template, generator: PatternGenerator): Template {
+  return {
+    ...template,
+    elements: template.elements.map((element) =>
+      element.kind === "pattern" ? { ...element, generator: { ...generator } } : element,
+    ),
+  };
 }
 
 function cloneGenerator<T extends object>(generator: T): T {

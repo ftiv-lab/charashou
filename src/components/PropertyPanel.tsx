@@ -11,6 +11,7 @@ import {
 import type {
   FieldKey,
   FieldStyle,
+  PatternGenerator,
   RepeatTextWatermarkGenerator,
   Template,
   ThemeConfig,
@@ -31,6 +32,7 @@ type PropertyPanelProps = {
   onFieldStyleChange: (key: FieldKey, style: Partial<FieldStyle>) => void;
   onThemeChange: <Key extends keyof ThemeConfig>(key: Key, value: ThemeConfig[Key]) => void;
   onDecorationPreset: (target: DecorationTarget, presetId: string) => void;
+  onPatternChange: (generator: PatternGenerator, mergeKey: string) => void;
   onWatermarkChange: (
     key: "text" | "opacity",
     value: RepeatTextWatermarkGenerator["text" | "opacity"],
@@ -63,6 +65,7 @@ export function PropertyPanel({
   onFieldStyleChange,
   onThemeChange,
   onDecorationPreset,
+  onPatternChange,
   onWatermarkChange,
   onPhotoUpload,
   onPhotoAdjustment,
@@ -178,6 +181,7 @@ export function PropertyPanel({
           template={template}
           onChange={onThemeChange}
           onDecorationPreset={onDecorationPreset}
+          onPatternChange={onPatternChange}
           onWatermarkChange={onWatermarkChange}
         />
       </div>

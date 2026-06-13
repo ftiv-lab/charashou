@@ -3,6 +3,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import {
   applyDecorationPreset,
   type DecorationTarget,
+  updatePatternGenerator,
   updateWatermarkGenerator,
 } from "./card/decorations";
 import { isEditableElement } from "./card/editor";
@@ -12,6 +13,7 @@ import {
   createDefaultTemplate,
   type FieldKey,
   type FieldStyle,
+  type PatternGenerator,
   type RepeatTextWatermarkGenerator,
   type TemplateElement,
   type TemplateElementChange,
@@ -117,6 +119,17 @@ export function App() {
       next: {
         ...history.present,
         template: updateWatermarkGenerator(template, { [key]: value }),
+      },
+    });
+  };
+
+  const handlePatternChange = (generator: PatternGenerator, mergeKey: string) => {
+    dispatch({
+      type: "EDIT",
+      mergeKey: `decoration:pattern:${mergeKey}`,
+      next: {
+        ...history.present,
+        template: updatePatternGenerator(template, generator),
       },
     });
   };
@@ -271,6 +284,7 @@ export function App() {
           onFieldStyleChange={handleFieldStyleChange}
           onThemeChange={handleThemeChange}
           onDecorationPreset={handleDecorationPreset}
+          onPatternChange={handlePatternChange}
           onWatermarkChange={handleWatermarkChange}
           photo={photo}
           stageRef={stageRef}

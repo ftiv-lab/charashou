@@ -3,6 +3,7 @@
 状態の単一原本。新しいセッション/Codexは AGENTS.md の次にここを読む。
 
 ## Done
+- handoffs/0015a-background-pattern-generator：背景地紋をrepeatText/stripe/dots/rosetteLiteの編集可能ジェネレーターへ拡張。専用UI、テーマ色連動/個別色、旧pattern移行、保存/履歴/3倍PNG反映を追加。
 - handoffs/0014a-parametric-decorations-presets：校章/印/透かし/背景地紋を判別可能な生成パラメータ＋Konva手続き描画へ移行。デザインタブに各3プリセット、旧保存データ補完、Undo/JSON/IndexedDB/3倍PNG反映を追加。
 - handoffs/0013b-inspector-photo-crest-discoverability：右インスペクタをtext/写真/校章/印へ拡張。共通の位置・サイズと写真調整を既存template/photo stateへ接続し、クリック案内・ホバー枠・pointerカーソルで発見性も改善。
 - handoffs/0013-right-inspector-text：`selectedElementId`をAppへ持ち上げ、テキスト選択時だけ開く右スライドインスペクタを追加。内容/X/Y/文字サイズ/色は既存template stateを更新し、選択は履歴外。
@@ -28,7 +29,7 @@
 - 装飾の役割分担：**背景地紋/透かし/丸印＝アプリ生成**、**校章/紋章＝アップロード＋AIプロンプト補助**、同梱素材はCC0等の安全な抽象のみ最小限。校章の本格生成は追わない。
 
 ## Doing
-- **handoffs/0015a-background-pattern-generator**：背景地紋を編集可能ジェネレーター化（repeatText/stripe/dots/rosetteLite＋色/濃さ/角度/間隔/テキスト、テーマ色連動）。カード全体の完成度に一番効く。council(Claude+ChatGPT)＝最初に作る装飾＝背景地紋。
+- なし。
 
 ## Next
 - 0015b：丸印（ハンコ）ジェネレーターの編集UI（外周/中央文字・色・線幅・サイズ・濃さ）。

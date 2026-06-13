@@ -113,12 +113,45 @@ export type RepeatTextWatermarkGenerator = {
   opacity: number;
 };
 
-export type PatternGenerator = {
+type PatternGeneratorBase = {
   type: "pattern";
-  kind: "stripe" | "dot" | "wave" | "rosette";
   color?: string;
   opacity: number;
 };
+
+export type RepeatTextPatternGenerator = PatternGeneratorBase & {
+  kind: "repeatText";
+  text: string;
+  angle: number;
+  spacing: number;
+};
+
+export type StripePatternGenerator = PatternGeneratorBase & {
+  kind: "stripe";
+  angle: number;
+  spacing: number;
+  strokeWidth: number;
+};
+
+export type DotsPatternGenerator = PatternGeneratorBase & {
+  kind: "dots";
+  spacing: number;
+  radius: number;
+};
+
+export type RosetteLitePatternGenerator = PatternGeneratorBase & {
+  kind: "rosetteLite";
+  loops: number;
+  radius: number;
+  amplitude: number;
+  strokeWidth: number;
+};
+
+export type PatternGenerator =
+  | RepeatTextPatternGenerator
+  | StripePatternGenerator
+  | DotsPatternGenerator
+  | RosetteLitePatternGenerator;
 
 export type EditableElement = TextElement | CrestElement | PhotoElement | SealElement;
 

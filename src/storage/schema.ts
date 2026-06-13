@@ -4,6 +4,7 @@ import {
   DEFAULT_CREST_GENERATOR,
   DEFAULT_SEAL_GENERATOR,
   DEFAULT_WATERMARK_GENERATOR,
+  normalizePatternGenerator,
 } from "../card/decorations";
 import type { EditorDocument } from "../card/history";
 
@@ -91,12 +92,46 @@ const repeatTextWatermarkGeneratorSchema = z.object({
   opacity: z.number().min(0).max(1),
 });
 
-const patternGeneratorSchema = z.object({
+const patternBase = {
   type: z.literal("pattern"),
-  kind: z.enum(["stripe", "dot", "wave", "rosette"]),
   color: z.string().optional(),
   opacity: z.number().min(0).max(1),
-});
+};
+
+const patternGeneratorSchema = z.union([
+  z.object({
+    ...patternBase,
+    kind: z.literal("repeatText"),
+    text: z.string(),
+    angle: z.number().finite(),
+    spacing: z.number().positive(),
+  }),
+  z.object({
+    ...patternBase,
+    kind: z.literal("stripe"),
+    angle: z.number().finite(),
+    spacing: z.number().positive(),
+    strokeWidth: z.number().positive(),
+  }),
+  z.object({
+    ...patternBase,
+    kind: z.literal("dots"),
+    spacing: z.number().positive(),
+    radius: z.number().positive(),
+  }),
+  z.object({
+    ...patternBase,
+    kind: z.literal("rosetteLite"),
+    loops: z.number().int().positive(),
+    radius: z.number().positive(),
+    amplitude: z.number().positive(),
+    strokeWidth: z.number().positive(),
+  }),
+  z.object({
+    ...patternBase,
+    kind: z.enum(["stripe", "dot", "wave", "rosette"]),
+  }),
+]);
 
 const watermarkElementSchema = z.object({
   ...elementBase,
@@ -196,7 +231,9 @@ function normalizeEditorDocument(value: z.infer<typeof editorDocumentSchema>): E
     if (element.kind === "pattern") {
       return {
         ...element,
-        generator: element.generator ?? createDefaultPatternElement().generator,
+        generator: normalizePatternGenerator(
+          element.generator ?? createDefaultPatternElement().generator,
+        ),
       };
     }
     return element;

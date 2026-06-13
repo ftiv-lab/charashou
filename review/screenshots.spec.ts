@@ -100,7 +100,11 @@ test("generate review screenshots", async ({ page }) => {
   await page.getByRole("button", { name: "校章 シールド" }).click();
   await page.getByRole("button", { name: "印 証明印" }).click();
   await page.getByRole("button", { name: "透かし モノグラム" }).click();
-  await page.getByRole("button", { name: "背景 ロゼット" }).click();
+  await page.getByLabel("地紋 種類").selectOption("repeatText");
+  await page.getByLabel("地紋 テキスト").fill("CHARACTER FILE");
+  await page.getByLabel("地紋 角度").fill("-18");
+  await page.getByLabel("地紋 間隔").fill("76");
+  await page.getByLabel("地紋 濃さ").fill("0.08");
   await capture(page, "02-customize.png");
 
   await openApp(page);

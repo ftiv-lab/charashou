@@ -44,6 +44,25 @@ describe("storage helpers", () => {
     });
   });
 
+  it("migrates the 0014a pattern shape into editable generator parameters", () => {
+    const legacy = JSON.parse(serializeEditorDocument(createDocument()));
+    const pattern = legacy.doc.template.elements.find(
+      (element: { kind: string }) => element.kind === "pattern",
+    );
+    pattern.generator = { type: "pattern", kind: "stripe", opacity: 0.07 };
+
+    const parsed = parseEditorDocumentJson(JSON.stringify(legacy));
+    expect(
+      parsed.template.elements.find((element) => element.kind === "pattern")?.generator,
+    ).toMatchObject({
+      kind: "stripe",
+      angle: 32,
+      spacing: 30,
+      strokeWidth: 0.5,
+      opacity: 0.07,
+    });
+  });
+
   it("creates and duplicates saved cards with stable metadata", () => {
     const doc = createDocument();
     const card = createSavedCard(doc, "  My Card  ", "data:image/png;base64,test", {

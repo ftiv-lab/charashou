@@ -145,10 +145,12 @@ function PatternDecoration({ element, template }: { element: PatternElement; tem
           return (
             <Line
               key={mark.id}
+              x={mark.x}
+              y={mark.y}
+              rotation={mark.rotation}
               points={mark.points}
               stroke={color}
-              strokeWidth={1}
-              tension={mark.tension}
+              strokeWidth={mark.strokeWidth}
               listening={false}
             />
           );
@@ -165,21 +167,30 @@ function PatternDecoration({ element, template }: { element: PatternElement; tem
             />
           );
         }
+        if (mark.kind === "text") {
+          return (
+            <Text
+              key={mark.id}
+              x={mark.x}
+              y={mark.y}
+              rotation={mark.rotation}
+              text={mark.text}
+              fontFamily={canvasFontFamily(template.theme.baseFont)}
+              fontSize={mark.fontSize}
+              fill={color}
+              listening={false}
+            />
+          );
+        }
         return (
-          <Group key={mark.id} x={mark.x} y={mark.y}>
-            {[0, 60, 120].map((rotation) => (
-              <Circle
-                key={rotation}
-                x={Math.cos((rotation * Math.PI) / 180) * 5}
-                y={Math.sin((rotation * Math.PI) / 180) * 5}
-                radius={10}
-                stroke={color}
-                strokeWidth={1}
-                listening={false}
-              />
-            ))}
-            <Circle radius={2} fill={color} listening={false} />
-          </Group>
+          <Line
+            key={mark.id}
+            points={mark.points}
+            stroke={color}
+            strokeWidth={mark.strokeWidth}
+            closed
+            listening={false}
+          />
         );
       })}
     </Group>
