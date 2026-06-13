@@ -3,6 +3,7 @@
 状態の単一原本。新しいセッション/Codexは AGENTS.md の次にここを読む。
 
 ## Done
+- handoffs/0014a-parametric-decorations-presets：校章/印/透かし/背景地紋を判別可能な生成パラメータ＋Konva手続き描画へ移行。デザインタブに各3プリセット、旧保存データ補完、Undo/JSON/IndexedDB/3倍PNG反映を追加。
 - handoffs/0013b-inspector-photo-crest-discoverability：右インスペクタをtext/写真/校章/印へ拡張。共通の位置・サイズと写真調整を既存template/photo stateへ接続し、クリック案内・ホバー枠・pointerカーソルで発見性も改善。
 - handoffs/0013-right-inspector-text：`selectedElementId`をAppへ持ち上げ、テキスト選択時だけ開く右スライドインスペクタを追加。内容/X/Y/文字サイズ/色は既存template stateを更新し、選択は履歴外。
 - handoffs/0012-left-panel-tabs-mycards-grid：左パネルを「内容/デザイン/写真/マイカード」のARIAタブへ再編し、保存カードを2列サムネイルグリッド化。既存コントロールとロジックは維持。
@@ -23,7 +24,7 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- **handoffs/0014a-parametric-decorations-presets**：校章/印/透かし/背景地紋を“固定描画”から“パラメータ生成（手続き的）”化＋デザインタブにプリセット各3種。テーマ連動・保存/JSON/Undo/PNGに反映。複数テンプレ(0014b)の土台。council(Claude+ChatGPT)一致＝素材は「枠と生成の最小コア」を先に。
+- なし。
 
 ## Next
 - 0014b：複数テンプレ3種（学園＝完成度UP／魔法学校／ギルド）＋`Template.category`/`assetSlots`抽象＋切替UI（切替＝「保存して新規作成」、写真の引き継ぎは任意）。VTuber/サイバーは後。

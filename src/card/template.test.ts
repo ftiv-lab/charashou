@@ -11,7 +11,7 @@ describe("DEFAULT_TEMPLATE", () => {
       crestAccent: "#9b5d7a",
       baseFont: '"Noto Serif JP", serif',
       watermarkText: "COROND JOSHI GAKUIN ",
-      watermarkOpacity: 0.28,
+      watermarkOpacity: 0.16,
     });
     expect(DEFAULT_TEMPLATE.fields.map((field) => field.key)).toEqual([
       "schoolName",
@@ -27,6 +27,7 @@ describe("DEFAULT_TEMPLATE", () => {
     ]);
     expect(DEFAULT_TEMPLATE.fields.every((field) => field.style === undefined)).toBe(true);
     expect(DEFAULT_TEMPLATE.elements.map((element) => element.id)).toContain("photo");
+    expect(DEFAULT_TEMPLATE.elements.map((element) => element.id)).toContain("background-pattern");
     expect(DEFAULT_TEMPLATE.elements.filter((element) => element.kind === "text")).toHaveLength(14);
   });
 
@@ -36,5 +37,8 @@ describe("DEFAULT_TEMPLATE", () => {
 
     expect(getTemplateField(DEFAULT_TEMPLATE, "name").value).toBe("白峰 雪菜");
     expect(template.elements).not.toBe(DEFAULT_TEMPLATE.elements);
+    const templateCrest = template.elements.find((element) => element.kind === "crest");
+    const defaultCrest = DEFAULT_TEMPLATE.elements.find((element) => element.kind === "crest");
+    expect(templateCrest?.generator).not.toBe(defaultCrest?.generator);
   });
 });

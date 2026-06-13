@@ -1,5 +1,10 @@
 import type Konva from "konva";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import {
+  applyDecorationPreset,
+  type DecorationTarget,
+  updateWatermarkGenerator,
+} from "./card/decorations";
 import { isEditableElement } from "./card/editor";
 import { createHistoryState, type EditorDocument, historyReducer } from "./card/history";
 import { DEFAULT_PHOTO_STATE, type PhotoAdjustmentKey } from "./card/photo";
@@ -7,6 +12,7 @@ import {
   createDefaultTemplate,
   type FieldKey,
   type FieldStyle,
+  type RepeatTextWatermarkGenerator,
   type TemplateElement,
   type TemplateElementChange,
   type ThemeConfig,
@@ -87,6 +93,30 @@ export function App() {
       next: {
         ...history.present,
         template: { ...template, theme: { ...template.theme, [key]: value } },
+      },
+    });
+  };
+
+  const handleDecorationPreset = (target: DecorationTarget, presetId: string) => {
+    dispatch({
+      type: "EDIT",
+      next: {
+        ...history.present,
+        template: applyDecorationPreset(template, target, presetId),
+      },
+    });
+  };
+
+  const handleWatermarkChange = (
+    key: "text" | "opacity",
+    value: RepeatTextWatermarkGenerator["text" | "opacity"],
+  ) => {
+    dispatch({
+      type: "EDIT",
+      mergeKey: `decoration:watermark:${key}`,
+      next: {
+        ...history.present,
+        template: updateWatermarkGenerator(template, { [key]: value }),
       },
     });
   };
@@ -240,6 +270,8 @@ export function App() {
           onFieldValueChange={handleFieldChange}
           onFieldStyleChange={handleFieldStyleChange}
           onThemeChange={handleThemeChange}
+          onDecorationPreset={handleDecorationPreset}
+          onWatermarkChange={handleWatermarkChange}
           photo={photo}
           stageRef={stageRef}
           currentCardId={currentCard?.id}

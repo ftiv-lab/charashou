@@ -1,3 +1,10 @@
+import {
+  createDefaultPatternElement,
+  DEFAULT_CREST_GENERATOR,
+  DEFAULT_SEAL_GENERATOR,
+  DEFAULT_WATERMARK_GENERATOR,
+} from "./decorations";
+
 export type FieldKey =
   | "schoolName"
   | "schoolRoman"
@@ -57,6 +64,7 @@ export type RectElement = ElementBase & {
 
 export type WatermarkElement = ElementBase & {
   kind: "watermark";
+  generator: RepeatTextWatermarkGenerator;
   fontFamily: string;
   fontSize: number;
   color: string;
@@ -66,6 +74,7 @@ export type WatermarkElement = ElementBase & {
 
 export type CrestElement = ElementBase & {
   kind: "crest";
+  generator: MonogramCrestGenerator;
 };
 
 export type PhotoElement = ElementBase & {
@@ -74,6 +83,41 @@ export type PhotoElement = ElementBase & {
 
 export type SealElement = ElementBase & {
   kind: "seal";
+  generator: RoundSealGenerator;
+};
+
+export type PatternElement = ElementBase & {
+  kind: "pattern";
+  generator: PatternGenerator;
+};
+
+export type MonogramCrestGenerator = {
+  type: "monogramCrest";
+  initials: string;
+  shape: "circle" | "shield" | "diamond";
+  strokeColor?: string;
+  fillColor?: string;
+};
+
+export type RoundSealGenerator = {
+  type: "roundSeal";
+  outerText: string;
+  centerText: string;
+  color?: string;
+};
+
+export type RepeatTextWatermarkGenerator = {
+  type: "repeatTextWatermark";
+  text: string;
+  angle: number;
+  opacity: number;
+};
+
+export type PatternGenerator = {
+  type: "pattern";
+  kind: "stripe" | "dot" | "wave" | "rosette";
+  color?: string;
+  opacity: number;
 };
 
 export type EditableElement = TextElement | CrestElement | PhotoElement | SealElement;
@@ -82,6 +126,7 @@ export type TemplateElement =
   | TextElement
   | RectElement
   | WatermarkElement
+  | PatternElement
   | CrestElement
   | PhotoElement
   | SealElement;
@@ -128,8 +173,8 @@ export const DEFAULT_TEMPLATE: Template = {
     textColor: "#2a2330",
     crestAccent: "#9b5d7a",
     baseFont: '"Noto Serif JP", serif',
-    watermarkText: "COROND JOSHI GAKUIN ",
-    watermarkOpacity: 0.28,
+    watermarkText: DEFAULT_WATERMARK_GENERATOR.text,
+    watermarkOpacity: DEFAULT_WATERMARK_GENERATOR.opacity,
   },
   fields: [
     { key: "schoolName", label: "学校名", type: "text", value: "私立コロンド女子学院" },
@@ -179,9 +224,11 @@ export const DEFAULT_TEMPLATE: Template = {
       height: 332,
       cornerRadius: [0, 0, 20, 20],
     },
+    createDefaultPatternElement(),
     {
       id: "watermark",
       kind: "watermark",
+      generator: DEFAULT_WATERMARK_GENERATOR,
       x: -170,
       y: -120,
       width: 920,
@@ -193,7 +240,15 @@ export const DEFAULT_TEMPLATE: Template = {
       letterSpacing: 6,
       lineHeight: 1.55,
     },
-    { id: "crest", kind: "crest", x: 20, y: 14, width: 64, height: 64 },
+    {
+      id: "crest",
+      kind: "crest",
+      generator: DEFAULT_CREST_GENERATOR,
+      x: 20,
+      y: 14,
+      width: 64,
+      height: 64,
+    },
     {
       id: "school-name",
       kind: "text",
@@ -360,9 +415,30 @@ export const DEFAULT_TEMPLATE: Template = {
       fontWeight: 700,
       letterSpacing: 2,
     },
-    { id: "seal", kind: "seal", x: 614, y: 354, width: 46, height: 46, rotation: -4 },
+    {
+      id: "seal",
+      kind: "seal",
+      generator: DEFAULT_SEAL_GENERATOR,
+      x: 614,
+      y: 354,
+      width: 46,
+      height: 46,
+      rotation: -4,
+    },
   ],
 };
+
+function cloneTemplateElement(element: TemplateElement): TemplateElement {
+  switch (element.kind) {
+    case "watermark":
+    case "pattern":
+    case "crest":
+    case "seal":
+      return { ...element, generator: { ...element.generator } } as TemplateElement;
+    default:
+      return { ...element };
+  }
+}
 
 export function createDefaultTemplate(): Template {
   return {
@@ -373,7 +449,7 @@ export function createDefaultTemplate(): Template {
       ...field,
       style: field.style ? { ...field.style } : undefined,
     })),
-    elements: DEFAULT_TEMPLATE.elements.map((element) => ({ ...element })),
+    elements: DEFAULT_TEMPLATE.elements.map(cloneTemplateElement),
   };
 }
 

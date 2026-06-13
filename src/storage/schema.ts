@@ -1,4 +1,10 @@
 import { z } from "zod";
+import {
+  createDefaultPatternElement,
+  DEFAULT_CREST_GENERATOR,
+  DEFAULT_SEAL_GENERATOR,
+  DEFAULT_WATERMARK_GENERATOR,
+} from "../card/decorations";
 import type { EditorDocument } from "../card/history";
 
 const fieldKeySchema = z.enum([
@@ -63,9 +69,39 @@ const rectElementSchema = z.object({
     .optional(),
 });
 
+const monogramCrestGeneratorSchema = z.object({
+  type: z.literal("monogramCrest"),
+  initials: z.string(),
+  shape: z.enum(["circle", "shield", "diamond"]),
+  strokeColor: z.string().optional(),
+  fillColor: z.string().optional(),
+});
+
+const roundSealGeneratorSchema = z.object({
+  type: z.literal("roundSeal"),
+  outerText: z.string(),
+  centerText: z.string(),
+  color: z.string().optional(),
+});
+
+const repeatTextWatermarkGeneratorSchema = z.object({
+  type: z.literal("repeatTextWatermark"),
+  text: z.string(),
+  angle: z.number().finite(),
+  opacity: z.number().min(0).max(1),
+});
+
+const patternGeneratorSchema = z.object({
+  type: z.literal("pattern"),
+  kind: z.enum(["stripe", "dot", "wave", "rosette"]),
+  color: z.string().optional(),
+  opacity: z.number().min(0).max(1),
+});
+
 const watermarkElementSchema = z.object({
   ...elementBase,
   kind: z.literal("watermark"),
+  generator: repeatTextWatermarkGeneratorSchema.optional(),
   fontFamily: z.string(),
   fontSize: z.number().positive(),
   color: z.string(),
@@ -77,9 +113,22 @@ const templateElementSchema = z.discriminatedUnion("kind", [
   textElementSchema,
   rectElementSchema,
   watermarkElementSchema,
-  z.object({ ...elementBase, kind: z.literal("crest") }),
+  z.object({
+    ...elementBase,
+    kind: z.literal("pattern"),
+    generator: patternGeneratorSchema.optional(),
+  }),
+  z.object({
+    ...elementBase,
+    kind: z.literal("crest"),
+    generator: monogramCrestGeneratorSchema.optional(),
+  }),
   z.object({ ...elementBase, kind: z.literal("image") }),
-  z.object({ ...elementBase, kind: z.literal("seal") }),
+  z.object({
+    ...elementBase,
+    kind: z.literal("seal"),
+    generator: roundSealGeneratorSchema.optional(),
+  }),
 ]);
 
 export const editorDocumentSchema = z.object({
@@ -114,14 +163,54 @@ const backupSchema = z.object({
 });
 
 export function parseEditorDocument(value: unknown): EditorDocument {
-  return editorDocumentSchema.parse(value) as EditorDocument;
+  return normalizeEditorDocument(editorDocumentSchema.parse(value));
 }
 
 export function parseEditorDocumentJson(text: string): EditorDocument {
   const value: unknown = JSON.parse(text);
-  return backupSchema.parse(value).doc as EditorDocument;
+  return normalizeEditorDocument(backupSchema.parse(value).doc);
 }
 
 export function serializeEditorDocument(doc: EditorDocument): string {
   return JSON.stringify({ format: "charashou", version: 1, doc }, null, 2);
+}
+
+function normalizeEditorDocument(value: z.infer<typeof editorDocumentSchema>): EditorDocument {
+  const elements = value.template.elements.map((element) => {
+    if (element.kind === "crest") {
+      return { ...element, generator: element.generator ?? { ...DEFAULT_CREST_GENERATOR } };
+    }
+    if (element.kind === "seal") {
+      return { ...element, generator: element.generator ?? { ...DEFAULT_SEAL_GENERATOR } };
+    }
+    if (element.kind === "watermark") {
+      return {
+        ...element,
+        generator: element.generator ?? {
+          ...DEFAULT_WATERMARK_GENERATOR,
+          text: value.template.theme.watermarkText,
+          opacity: value.template.theme.watermarkOpacity,
+        },
+      };
+    }
+    if (element.kind === "pattern") {
+      return {
+        ...element,
+        generator: element.generator ?? createDefaultPatternElement().generator,
+      };
+    }
+    return element;
+  });
+
+  if (!elements.some((element) => element.kind === "pattern")) {
+    const bandIndex = elements.findIndex(
+      (element) => element.kind === "rect" && element.role === "band",
+    );
+    elements.splice(bandIndex >= 0 ? bandIndex + 1 : 0, 0, createDefaultPatternElement());
+  }
+
+  return {
+    ...value,
+    template: { ...value.template, elements },
+  } as EditorDocument;
 }

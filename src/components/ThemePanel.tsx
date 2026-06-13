@@ -1,11 +1,46 @@
-import { FONT_OPTIONS, type ThemeConfig } from "../card/template";
+import {
+  CREST_PRESETS,
+  type DecorationTarget,
+  isDecorationPresetActive,
+  PATTERN_PRESETS,
+  SEAL_PRESETS,
+  WATERMARK_PRESETS,
+} from "../card/decorations";
+import {
+  FONT_OPTIONS,
+  type RepeatTextWatermarkGenerator,
+  type Template,
+  type ThemeConfig,
+} from "../card/template";
 
 type ThemePanelProps = {
-  theme: ThemeConfig;
+  template: Template;
   onChange: <Key extends keyof ThemeConfig>(key: Key, value: ThemeConfig[Key]) => void;
+  onDecorationPreset: (target: DecorationTarget, presetId: string) => void;
+  onWatermarkChange: (
+    key: "text" | "opacity",
+    value: RepeatTextWatermarkGenerator["text" | "opacity"],
+  ) => void;
 };
 
-export function ThemePanel({ theme, onChange }: ThemePanelProps) {
+const PRESET_GROUPS = [
+  { target: "crest", label: "校章", presets: CREST_PRESETS },
+  { target: "seal", label: "印", presets: SEAL_PRESETS },
+  { target: "watermark", label: "透かし", presets: WATERMARK_PRESETS },
+  { target: "pattern", label: "背景", presets: PATTERN_PRESETS },
+] as const;
+
+export function ThemePanel({
+  template,
+  onChange,
+  onDecorationPreset,
+  onWatermarkChange,
+}: ThemePanelProps) {
+  const { theme } = template;
+  const watermark = template.elements.find((element) => element.kind === "watermark");
+  const watermarkText = watermark?.generator.text ?? theme.watermarkText;
+  const watermarkOpacity = watermark?.generator.opacity ?? theme.watermarkOpacity;
+
   return (
     <section className="property-section" aria-labelledby="theme-heading">
       <h2 id="theme-heading">全体テーマ</h2>
@@ -58,12 +93,35 @@ export function ThemePanel({ theme, onChange }: ThemePanelProps) {
         </select>
       </label>
 
+      <section className="decoration-presets" aria-labelledby="decoration-presets-heading">
+        <h3 id="decoration-presets-heading">装飾プリセット</h3>
+        {PRESET_GROUPS.map((group) => (
+          <fieldset className="preset-group" key={group.target}>
+            <legend>{group.label}</legend>
+            <div className="preset-options">
+              {group.presets.map((preset) => (
+                <button
+                  key={preset.id}
+                  className="preset-button"
+                  type="button"
+                  aria-label={`${group.label} ${preset.label}`}
+                  aria-pressed={isDecorationPresetActive(template, group.target, preset.id)}
+                  onClick={() => onDecorationPreset(group.target, preset.id)}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+        ))}
+      </section>
+
       <label className="field">
         <span>透かし文字</span>
         <input
           type="text"
-          value={theme.watermarkText}
-          onChange={(event) => onChange("watermarkText", event.target.value)}
+          value={watermarkText}
+          onChange={(event) => onWatermarkChange("text", event.target.value)}
         />
       </label>
 
@@ -75,10 +133,10 @@ export function ThemePanel({ theme, onChange }: ThemePanelProps) {
             min="0"
             max="0.5"
             step="0.01"
-            value={theme.watermarkOpacity}
-            onChange={(event) => onChange("watermarkOpacity", Number(event.target.value))}
+            value={watermarkOpacity}
+            onChange={(event) => onWatermarkChange("opacity", Number(event.target.value))}
           />
-          <output>{theme.watermarkOpacity.toFixed(2)}</output>
+          <output>{watermarkOpacity.toFixed(2)}</output>
         </span>
       </label>
     </section>

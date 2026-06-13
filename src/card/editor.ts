@@ -21,7 +21,7 @@ type GuideStops = {
 };
 
 export function isFrameElement(element: TemplateElement): boolean {
-  return element.kind === "rect" || element.kind === "watermark";
+  return element.kind === "rect" || element.kind === "watermark" || element.kind === "pattern";
 }
 
 export function isEditableElement(element: TemplateElement): element is EditableElement {

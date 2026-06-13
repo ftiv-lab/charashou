@@ -5,6 +5,15 @@ async function openPanelTab(page: Page, name: "内容" | "デザイン" | "写�
   await page.getByRole("tab", { name }).click();
 }
 
+async function downloadPng(page: Page): Promise<Buffer> {
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "PNGで保存" }).click();
+  const download = await downloadPromise;
+  const downloadPath = await download.path();
+  if (!downloadPath) throw new Error("PNG download path was not available");
+  return readFile(downloadPath);
+}
+
 test("core Konva card workflow stays intact", async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => document.fonts.ready);
@@ -148,6 +157,54 @@ test("undo and redo coalesce edits and support keyboard shortcuts", async ({ pag
   await expect(name).toHaveValue("Asaka Hiyori");
   await openPanelTab(page, "デザイン");
   await expect(bandColor).toHaveValue("#123456");
+});
+
+test("decoration presets persist and are included in PNG export", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+
+  const card = page.getByRole("img", { name: "カードプレビュー" });
+  const canvas = card.locator("canvas").first();
+  const initialCanvas = await canvas.screenshot();
+  const initialPng = await downloadPng(page);
+
+  await openPanelTab(page, "デザイン");
+  await page.getByRole("button", { name: "校章 シールド" }).click();
+  await page.getByRole("button", { name: "印 証明印" }).click();
+  await page.getByRole("button", { name: "透かし モノグラム" }).click();
+  await page.getByRole("button", { name: "背景 ロゼット" }).click();
+  await expect
+    .poll(async () => Buffer.compare(await canvas.screenshot(), initialCanvas))
+    .not.toBe(0);
+
+  await openPanelTab(page, "マイカード");
+  await expect(page.locator(".storage-status")).toHaveText("自動保存しました。", {
+    timeout: 5000,
+  });
+  await page.reload();
+  await page.evaluate(() => document.fonts.ready);
+  await openPanelTab(page, "デザイン");
+  await expect(page.getByRole("button", { name: "校章 シールド" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.getByRole("button", { name: "印 証明印" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.getByRole("button", { name: "透かし モノグラム" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.getByRole("button", { name: "背景 ロゼット" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  const restoredPng = await downloadPng(page);
+  expect(Buffer.compare(restoredPng, initialPng)).not.toBe(0);
+  expect(restoredPng.readUInt32BE(16)).toBe(2040);
+  expect(restoredPng.readUInt32BE(20)).toBe(1290);
 });
 
 test("text selection opens the right inspector and edits the shared template state", async ({

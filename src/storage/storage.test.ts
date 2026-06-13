@@ -13,9 +13,35 @@ function createDocument(): EditorDocument {
 describe("storage helpers", () => {
   it("round trips a valid document and rejects invalid JSON", () => {
     const doc = createDocument();
-    expect(parseEditorDocumentJson(serializeEditorDocument(doc))).toEqual(doc);
+    const parsed = parseEditorDocumentJson(serializeEditorDocument(doc));
+    expect(parsed).toEqual(doc);
+    expect(
+      parsed.template.elements.find((element) => element.kind === "pattern")?.generator,
+    ).toEqual(doc.template.elements.find((element) => element.kind === "pattern")?.generator);
     expect(() => parseEditorDocumentJson('{"format":"charashou","version":1,"doc":{}}')).toThrow();
     expect(() => parseEditorDocumentJson("not json")).toThrow();
+  });
+
+  it("adds parametric decoration defaults when restoring a legacy document", () => {
+    const legacy = JSON.parse(serializeEditorDocument(createDocument()));
+    legacy.doc.template.elements = legacy.doc.template.elements
+      .filter((element: { kind: string }) => element.kind !== "pattern")
+      .map((element: { kind: string; generator?: unknown }) => {
+        if (["crest", "seal", "watermark"].includes(element.kind)) delete element.generator;
+        return element;
+      });
+
+    const parsed = parseEditorDocumentJson(JSON.stringify(legacy));
+    expect(parsed.template.elements.find((element) => element.kind === "pattern")).toBeDefined();
+    expect(
+      parsed.template.elements.find((element) => element.kind === "crest")?.generator,
+    ).toMatchObject({ type: "monogramCrest", shape: "circle" });
+    expect(
+      parsed.template.elements.find((element) => element.kind === "watermark")?.generator,
+    ).toMatchObject({
+      text: parsed.template.theme.watermarkText,
+      opacity: parsed.template.theme.watermarkOpacity,
+    });
   });
 
   it("creates and duplicates saved cards with stable metadata", () => {

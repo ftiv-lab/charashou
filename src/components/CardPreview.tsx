@@ -13,6 +13,11 @@ import {
   Transformer,
 } from "react-konva";
 import {
+  createPatternMarks,
+  getCrestOutlinePoints,
+  resolveDecorationColor,
+} from "../card/decorations";
+import {
   elementChangeFromTransform,
   getGuideStops,
   isEditableElement,
@@ -24,6 +29,7 @@ import {
 import { calculatePhotoCrop, type PhotoState } from "../card/photo";
 import {
   getTemplateField,
+  type PatternElement,
   type Template,
   type TemplateElement,
   type TemplateElementChange,
@@ -115,6 +121,71 @@ function CardText({
   );
 }
 
+function PatternDecoration({ element, template }: { element: PatternElement; template: Template }) {
+  const color = resolveDecorationColor(element.generator.color, template.theme.crestAccent);
+  const { width, height } = element;
+  const marks = createPatternMarks(element.generator, width, height);
+
+  return (
+    <Group
+      id={element.id}
+      x={element.x}
+      y={element.y}
+      width={width}
+      height={height}
+      clipX={0}
+      clipY={0}
+      clipWidth={width}
+      clipHeight={height}
+      opacity={element.generator.opacity}
+      listening={false}
+    >
+      {marks.map((mark) => {
+        if (mark.kind === "line") {
+          return (
+            <Line
+              key={mark.id}
+              points={mark.points}
+              stroke={color}
+              strokeWidth={1}
+              tension={mark.tension}
+              listening={false}
+            />
+          );
+        }
+        if (mark.kind === "dot") {
+          return (
+            <Circle
+              key={mark.id}
+              x={mark.x}
+              y={mark.y}
+              radius={mark.radius}
+              fill={color}
+              listening={false}
+            />
+          );
+        }
+        return (
+          <Group key={mark.id} x={mark.x} y={mark.y}>
+            {[0, 60, 120].map((rotation) => (
+              <Circle
+                key={rotation}
+                x={Math.cos((rotation * Math.PI) / 180) * 5}
+                y={Math.sin((rotation * Math.PI) / 180) * 5}
+                radius={10}
+                stroke={color}
+                strokeWidth={1}
+                listening={false}
+              />
+            ))}
+            <Circle radius={2} fill={color} listening={false} />
+          </Group>
+        );
+      })}
+    </Group>
+  );
+}
+
 function CardElement({
   element,
   template,
@@ -152,19 +223,27 @@ function CardElement({
           y={element.y}
           width={element.width}
           height={element.height}
-          rotation={element.rotation ?? 0}
-          text={template.theme.watermarkText ? `${template.theme.watermarkText} `.repeat(90) : ""}
+          rotation={element.generator.angle}
+          text={element.generator.text ? `${element.generator.text} `.repeat(90) : ""}
           fontFamily={canvasFontFamily(element.fontFamily)}
           fontSize={element.fontSize}
-          fill={element.color}
-          opacity={template.theme.watermarkOpacity}
+          fill={template.theme.crestAccent}
+          opacity={element.generator.opacity}
           letterSpacing={element.letterSpacing}
           lineHeight={element.lineHeight}
           wrap="word"
           listening={false}
         />
       );
-    case "crest":
+    case "pattern":
+      return <PatternDecoration element={element} template={template} />;
+    case "crest": {
+      const stroke = resolveDecorationColor(
+        element.generator.strokeColor,
+        template.theme.crestAccent,
+      );
+      const fill = resolveDecorationColor(element.generator.fillColor, template.theme.cardBg);
+      const outline = getCrestOutlinePoints(element.generator.shape, element.width, element.height);
       return (
         <Group
           id={element.id}
@@ -175,26 +254,32 @@ function CardElement({
           listening={false}
           {...editableProps}
         >
-          <Circle
-            x={element.width / 2}
-            y={element.height / 2}
-            radius={Math.max(2, Math.min(element.width, element.height) / 2 - 1)}
-            stroke={template.theme.crestAccent}
-            strokeWidth={2}
-          />
+          {outline ? (
+            <Line points={outline} closed fill={fill} stroke={stroke} strokeWidth={2} />
+          ) : (
+            <Circle
+              x={element.width / 2}
+              y={element.height / 2}
+              radius={Math.max(2, Math.min(element.width, element.height) / 2 - 1)}
+              fill={fill}
+              stroke={stroke}
+              strokeWidth={2}
+            />
+          )}
           <Text
             width={element.width}
             height={element.height}
-            text="CR"
+            text={element.generator.initials}
             fontFamily={canvasFontFamily(template.theme.baseFont)}
             fontSize={Math.max(10, Math.min(element.width, element.height) * 0.375)}
             fontStyle="bold"
-            fill={template.theme.crestAccent}
+            fill={stroke}
             align="center"
             verticalAlign="middle"
           />
         </Group>
       );
+    }
     case "image":
       return (
         <Group
@@ -243,7 +328,9 @@ function CardElement({
           )}
         </Group>
       );
-    case "seal":
+    case "seal": {
+      const color = resolveDecorationColor(element.generator.color, template.theme.crestAccent);
+      const sealSize = Math.min(element.width, element.height);
       return (
         <Group
           id={element.id}
@@ -255,27 +342,47 @@ function CardElement({
           listening={false}
           {...editableProps}
         >
-          <Rect
-            width={element.width}
-            height={element.height}
-            stroke="#c0392b"
+          <Circle
+            x={element.width / 2}
+            y={element.height / 2}
+            radius={Math.max(2, sealSize / 2 - 1)}
+            stroke={color}
             strokeWidth={2}
-            cornerRadius={6}
+          />
+          <Circle
+            x={element.width / 2}
+            y={element.height / 2}
+            radius={Math.max(2, sealSize / 2 - 5)}
+            stroke={color}
+            strokeWidth={1}
           />
           <Text
+            y={sealSize * 0.12}
             width={element.width}
-            height={element.height}
-            text={"学院長\n之印"}
-            fontFamily="Noto Serif JP"
-            fontSize={Math.max(8, Math.min(element.width, element.height) * 0.24)}
+            height={sealSize * 0.22}
+            text={element.generator.outerText}
+            fontFamily="Noto Sans JP"
+            fontSize={Math.max(4, sealSize * 0.1)}
             fontStyle="bold"
-            fill="#c0392b"
+            fill={color}
             align="center"
             verticalAlign="middle"
-            lineHeight={1.1}
+          />
+          <Text
+            y={sealSize * 0.29}
+            width={element.width}
+            height={sealSize * 0.52}
+            text={element.generator.centerText}
+            fontFamily="Noto Serif JP"
+            fontSize={Math.max(9, sealSize * 0.36)}
+            fontStyle="bold"
+            fill={color}
+            align="center"
+            verticalAlign="middle"
           />
         </Group>
       );
+    }
     case "text":
       return <CardText element={element} template={template} editableProps={editableProps} />;
   }

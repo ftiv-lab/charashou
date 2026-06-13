@@ -298,6 +298,47 @@ describe("App", () => {
     });
   });
 
+  it("applies decoration presets through the design tab and records undo history", () => {
+    render(<App />);
+    selectPanelTab("デザイン");
+
+    expect(screen.getAllByRole("button", { name: /^校章 / })).toHaveLength(3);
+    expect(screen.getAllByRole("button", { name: /^印 / })).toHaveLength(3);
+    expect(screen.getAllByRole("button", { name: /^透かし / })).toHaveLength(3);
+    expect(screen.getAllByRole("button", { name: /^背景 / })).toHaveLength(3);
+
+    fireEvent.click(screen.getByRole("button", { name: "校章 シールド" }));
+    fireEvent.click(screen.getByRole("button", { name: "印 証明印" }));
+    fireEvent.click(screen.getByRole("button", { name: "透かし モノグラム" }));
+    fireEvent.click(screen.getByRole("button", { name: "背景 ロゼット" }));
+
+    const changed = currentTemplate();
+    expect(changed.elements.find((element) => element.kind === "crest")?.generator).toMatchObject({
+      initials: "CG",
+      shape: "shield",
+    });
+    expect(changed.elements.find((element) => element.kind === "seal")?.generator).toMatchObject({
+      centerText: "証",
+    });
+    expect(
+      changed.elements.find((element) => element.kind === "watermark")?.generator,
+    ).toMatchObject({ text: "CR ", angle: -30 });
+    expect(changed.elements.find((element) => element.kind === "pattern")?.generator).toMatchObject(
+      {
+        kind: "rosette",
+      },
+    );
+    expect(screen.getByRole("button", { name: "背景 ロゼット" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(
+      currentTemplate().elements.find((element) => element.kind === "pattern")?.generator,
+    ).toMatchObject({ kind: "stripe" });
+  });
+
   it("validates uploads and passes photo adjustments into the preview", async () => {
     render(<App />);
     selectPanelTab("写真");

@@ -1,5 +1,6 @@
 import type Konva from "konva";
 import { type ChangeEvent, type KeyboardEvent, type RefObject, useRef, useState } from "react";
+import type { DecorationTarget } from "../card/decorations";
 import type { EditorDocument } from "../card/history";
 import {
   PHOTO_ACCEPT,
@@ -7,7 +8,13 @@ import {
   type PhotoState,
   validatePhotoFile,
 } from "../card/photo";
-import type { FieldKey, FieldStyle, Template, ThemeConfig } from "../card/template";
+import type {
+  FieldKey,
+  FieldStyle,
+  RepeatTextWatermarkGenerator,
+  Template,
+  ThemeConfig,
+} from "../card/template";
 import { FieldEditor } from "./FieldEditor";
 import { StoragePanel } from "./StoragePanel";
 import { ThemePanel } from "./ThemePanel";
@@ -23,6 +30,11 @@ type PropertyPanelProps = {
   onFieldValueChange: (key: FieldKey, value: string) => void;
   onFieldStyleChange: (key: FieldKey, style: Partial<FieldStyle>) => void;
   onThemeChange: <Key extends keyof ThemeConfig>(key: Key, value: ThemeConfig[Key]) => void;
+  onDecorationPreset: (target: DecorationTarget, presetId: string) => void;
+  onWatermarkChange: (
+    key: "text" | "opacity",
+    value: RepeatTextWatermarkGenerator["text" | "opacity"],
+  ) => void;
   onPhotoUpload: (dataUrl: string) => void;
   onPhotoAdjustment: (key: PhotoAdjustmentKey, value: number) => void;
   onLoadDocument: (doc: EditorDocument, card?: { id: string; name: string }) => void;
@@ -50,6 +62,8 @@ export function PropertyPanel({
   onFieldValueChange,
   onFieldStyleChange,
   onThemeChange,
+  onDecorationPreset,
+  onWatermarkChange,
   onPhotoUpload,
   onPhotoAdjustment,
   onLoadDocument,
@@ -160,7 +174,12 @@ export function PropertyPanel({
         aria-labelledby="panel-tab-design"
         hidden={activeTab !== "design"}
       >
-        <ThemePanel theme={template.theme} onChange={onThemeChange} />
+        <ThemePanel
+          template={template}
+          onChange={onThemeChange}
+          onDecorationPreset={onDecorationPreset}
+          onWatermarkChange={onWatermarkChange}
+        />
       </div>
 
       <div

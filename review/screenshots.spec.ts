@@ -97,6 +97,10 @@ test("generate review screenshots", async ({ page }) => {
   await page.getByLabel("帯の色").fill("#dce8ff");
   await page.getByLabel("文字色", { exact: true }).fill("#24324f");
   await page.getByLabel("校章アクセント").fill("#d45886");
+  await page.getByRole("button", { name: "校章 シールド" }).click();
+  await page.getByRole("button", { name: "印 証明印" }).click();
+  await page.getByRole("button", { name: "透かし モノグラム" }).click();
+  await page.getByRole("button", { name: "背景 ロゼット" }).click();
   await capture(page, "02-customize.png");
 
   await openApp(page);

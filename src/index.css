@@ -284,6 +284,58 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 8px 12px;
 }
+.decoration-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+}
+.decoration-presets h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+}
+.preset-group {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+.preset-group legend {
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.preset-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.preset-button {
+  min-width: 0;
+  min-height: 34px;
+  padding: 6px 4px;
+  overflow-wrap: anywhere;
+  color: var(--text-muted);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.preset-button:hover {
+  color: var(--text);
+  background: var(--bg-hover);
+}
+.preset-button[aria-pressed="true"] {
+  color: #fff;
+  background: rgba(61, 123, 255, 0.18);
+  border-color: var(--accent);
+}
+.preset-button:focus-visible {
+  outline: 2px solid var(--warn);
+  outline-offset: 2px;
+}
 .control-row {
   display: flex;
   align-items: center;
