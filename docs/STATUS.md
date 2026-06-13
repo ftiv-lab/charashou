@@ -21,10 +21,10 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- なし（handoffs/0012 完了）。
+- **handoffs/0013-right-inspector-text**：`selectedElementId`をAppへ持ち上げ＋右インスペクタ（選択時だけ開くスライド／テキスト要素のみ＝内容/X/Y/文字サイズ/色）。常時3ペインにはせず段階導入。council(Claude+ChatGPT)一致＝最小1スライス。
 
 ## Next
-- 0013：右インスペクタ（文脈依存：未選択=全体テーマ／要素選択=その要素のスタイル・位置）＋`selectedElementId`をAppへ持ち上げ＋左/中央/右の3ペイン化。
+- 0013b以降：右インスペクタを写真/校章/印へ拡張、左「内容」のスタイルを段階的に右へ移設、ピン留め/localStorage永続化、画面幅別レスポンシブ（狭い画面はドロワー/ボトムシート）。
 - 0014：複数テンプレ（学園/魔法学校/ギルド/サイバー/VTuber…）＋テンプレ毎フィールド構成＋切替（左「テンプレート」タブへ）。
 - 0015：印・モノグラム校章ジェネレーター（＋アップロード）。
 - 後（レビュー候補）：レスポンシブ/スマホ簡易編集（下部タブ＋ドロワー）／編集の最低ライン（複製/前面背面/レイヤー）／選択要素情報＋キーボード移動／立ち絵向け枠／SNS用書き出し／ビジュアル回帰テスト(`npm run visual`)／WebP・PDF／Tauri。
