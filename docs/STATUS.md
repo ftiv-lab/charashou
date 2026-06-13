@@ -19,12 +19,12 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- 次のhandoff待ち。
+- **handoffs/0011**：保存（Dexie/IndexedDBの“保存カード一覧”＋自動保存＋JSON書き出し/読み込み＋`persist()`）。「翌日また編集／ファイル迷子」を解消。サーバ無し維持。
 
 ## Next
-- 0011：複数テンプレ（学園/魔法学校/ギルド/サイバー/VTuber…）＋**テンプレ毎にフィールド構成**＋切替＋JSON保存/読込＋localStorage。
-- 0012：印・モノグラム校章ジェネレーター（＋アップロード）。
-- 後（レビュー候補）：選択要素の情報表示＋キーボード移動／SNS用書き出し／ビジュアル回帰テスト(`npm run visual`)／WebP・PDF／Tauri。
+- 0012：複数テンプレ（学園/魔法学校/ギルド/サイバー/VTuber…）＋**テンプレ毎にフィールド構成**＋切替。←“創作カードエディタ”化の本丸。
+- 0013：印・モノグラム校章ジェネレーター（＋アップロード）。
+- 後（レビュー候補）：編集の最低ライン（複製/前面背面/レイヤー）／選択要素情報＋キーボード移動／立ち絵向け枠／SNS用書き出し／ビジュアル回帰テスト(`npm run visual`)／WebP・PDF／Tauri。
 
 ## 保留
 - Boothでテンプレ販売（収益の芽）。
