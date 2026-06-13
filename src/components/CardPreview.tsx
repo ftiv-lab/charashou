@@ -33,6 +33,8 @@ import {
 type CardPreviewProps = {
   template: Template;
   photo: PhotoState;
+  selectedElementId?: string;
+  onSelectionChange: (id?: string) => void;
   onElementChange: (id: string, change: TemplateElementChange) => void;
 };
 
@@ -280,14 +282,13 @@ function CardElement({
 }
 
 export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function CardPreview(
-  { template, photo: photoState, onElementChange },
+  { template, photo: photoState, selectedElementId, onSelectionChange, onElementChange },
   forwardedRef,
 ) {
   const photo = useLoadedImage(photoState.dataUrl);
   const stageRef = useRef<Konva.Stage>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
   const [fontsReady, setFontsReady] = useState(false);
-  const [selectedElementId, setSelectedElementId] = useState<string>();
   const [guides, setGuides] = useState<SnapGuide[]>([]);
 
   useImperativeHandle(forwardedRef, () => stageRef.current as Konva.Stage);
@@ -302,18 +303,13 @@ export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function Ca
     };
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setSelectedElementId(undefined);
-        setGuides([]);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
   const selectedElement = template.elements.find((element) => element.id === selectedElementId);
+
+  const selectElement = (id?: string) => {
+    onSelectionChange(id);
+    if (!id) setGuides([]);
+    stageRef.current?.container().parentElement?.focus();
+  };
 
   useEffect(() => {
     const transformer = transformerRef.current;
@@ -335,11 +331,11 @@ export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function Ca
       name: "editable-element",
       onClick: (event) => {
         event.cancelBubble = true;
-        setSelectedElementId(element.id);
+        selectElement(element.id);
       },
       onTap: (event) => {
         event.cancelBubble = true;
-        setSelectedElementId(element.id);
+        selectElement(element.id);
       },
       onMouseEnter: (event) => {
         const stage = event.target.getStage();
@@ -400,6 +396,7 @@ export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function Ca
       data-renderer="konva"
       data-selected-element={selectedElementId ?? ""}
       data-guide-count={guides.length}
+      tabIndex={-1}
       style={{ width: template.size.width, height: template.size.height }}
     >
       <Stage
@@ -407,10 +404,10 @@ export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function Ca
         width={template.size.width}
         height={template.size.height}
         onMouseDown={(event) => {
-          if (event.target === event.target.getStage()) setSelectedElementId(undefined);
+          if (event.target === event.target.getStage()) selectElement(undefined);
         }}
         onTouchStart={(event) => {
-          if (event.target === event.target.getStage()) setSelectedElementId(undefined);
+          if (event.target === event.target.getStage()) selectElement(undefined);
         }}
       >
         <Layer key={fontsReady ? "fonts-ready" : "fonts-loading"}>

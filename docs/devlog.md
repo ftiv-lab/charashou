@@ -3,6 +3,7 @@
 つまづき／学びの逐次メモ（1行でOK・後で Note 化）。新しいものを上に。
 
 ## 2026-06-13
+- 右インスペクタ最小版：選択状態をCardPreviewからAppへ持ち上げ、テキスト選択時だけ右から重なる編集パネルを追加。fieldKey付き／静的テキストのどちらも既存templateを直接更新し、選択と開閉はUndo履歴外に保った。
 - 左パネル整理：内容／デザイン／写真／マイカードをARIAタブへ分離し、タブ列とリセットを固定したまま内容だけスクロールする構成へ。保存カードは2列サムネイルグリッド化し、既存ロジックを動かさず縦長問題を解消した。
 - 保存と再開：Dexie/useLiveQueryで保存カード一覧とCRUD、`meta.current`への2秒デバウンス自動保存、起動時復元を追加。Zod検証付きJSONバックアップと `navigator.storage.persist()` も入れ、読込はLOADでUndo/Redo履歴をクリアする形に統一した。
 - IndexedDBテスト：Vitestでは `fake-indexeddb` を共通setupへ入れ、テストごとにcards/metaを消去。Playwrightでは保存→再読込、CRUD、JSON往復、不正JSONまで実ブラウザで固定した。

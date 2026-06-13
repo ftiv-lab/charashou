@@ -1,7 +1,7 @@
 # ハンドオフ 0013 — 右インスペクタ（選択追従・テキストのみ・スライド開閉）
 
 - 作成：Claude / 2026-06-13
-- 状態：未着手
+- 状態：完了（Codex / 2026-06-13）
 
 ## 目的
 「**キャンバスで要素を選ぶ→右でその要素を編集する**」感覚を作る（Figma/Polotno方式の最小版）。**常時3ペインにはしない**。**選択時だけ開くスライド式の右インスペクタ**から始める。
@@ -51,3 +51,9 @@
 
 ## 完了後
 - `docs/STATUS.md` / `docs/devlog.md` 更新。
+
+## 実装結果
+- `selectedElementId`とインスペクタ開閉をAppの履歴外UI stateへ移し、CardPreviewを選択状態の制御コンポーネント化。
+- テキスト選択時だけ右から重なるRightInspectorを表示し、内容／X／Y／文字サイズ／文字色を既存template stateへ直接反映。fieldKey付きはfield、その他はelementを更新。
+- 空白クリック・Escで選択解除、閉じたインスペクタの再展開、`aria-expanded`／`aria-controls`、選択通知、Canvasフォーカス維持に対応。
+- Vitestでfield／静的テキスト双方の更新と履歴外選択を固定し、Playwrightで実Canvas選択→編集→Esc解除を追加。

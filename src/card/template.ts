@@ -88,6 +88,8 @@ export type TemplateElementChange = Partial<
   Pick<ElementBase, "x" | "y" | "width" | "height" | "rotation">
 > & {
   fontSize?: number;
+  text?: string;
+  color?: string;
 };
 
 export type ThemeConfig = {

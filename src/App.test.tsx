@@ -14,10 +14,14 @@ vi.mock("./components/CardPreview", () => ({
     {
       template,
       photo,
+      selectedElementId,
+      onSelectionChange,
       onElementChange,
     }: {
       template: Template;
       photo: PhotoState;
+      selectedElementId?: string;
+      onSelectionChange: (id?: string) => void;
       onElementChange: (id: string, change: TemplateElementChange) => void;
     },
     ref,
@@ -29,7 +33,14 @@ vi.mock("./components/CardPreview", () => ({
           data-testid="card-preview-state"
           data-template={JSON.stringify(template)}
           data-photo={JSON.stringify(photo)}
+          data-selected-element={selectedElementId ?? ""}
         />
+        <button type="button" onClick={() => onSelectionChange("name")}>
+          mock select name
+        </button>
+        <button type="button" onClick={() => onSelectionChange("name-label")}>
+          mock select static text
+        </button>
         <button
           type="button"
           onClick={() =>
@@ -128,6 +139,65 @@ describe("App", () => {
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
     fireEvent.keyDown(window, { key: "y", ctrlKey: true });
     expect(nameInput).toHaveValue("朝霞 ひより");
+  });
+
+  it("edits selected text through the right inspector without adding selection to history", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "mock select name" }));
+    expect(screen.getByRole("button", { name: "Undo" })).toBeDisabled();
+    expect(screen.getByRole("heading", { name: "選択中：氏名（テキスト）" })).toBeVisible();
+    expect(screen.getByText("氏名を選択しました。")).toHaveAttribute("aria-live", "polite");
+
+    const toggle = screen.getByRole("button", { name: "インスペクタを閉じる" });
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(toggle).toHaveAttribute("aria-controls", "right-inspector");
+
+    fireEvent.change(screen.getByLabelText("インスペクタ 内容"), {
+      target: { value: "右から編集" },
+    });
+    fireEvent.change(screen.getByLabelText("インスペクタ X"), { target: { value: "310" } });
+    fireEvent.change(screen.getByLabelText("インスペクタ Y"), { target: { value: "195" } });
+    fireEvent.change(screen.getByLabelText("インスペクタ 文字サイズ"), {
+      target: { value: "36" },
+    });
+    fireEvent.change(screen.getByLabelText("インスペクタ 文字色"), {
+      target: { value: "#123456" },
+    });
+
+    const changed = currentTemplate();
+    expect(fieldValue(changed, "name")).toMatchObject({
+      value: "右から編集",
+      style: { fontSize: 36, color: "#123456" },
+    });
+    expect(changed.elements.find((element) => element.id === "name")).toMatchObject({
+      x: 310,
+      y: 195,
+    });
+
+    fireEvent.click(toggle);
+    expect(screen.getByRole("button", { name: "インスペクタを開く" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    expect(document.querySelector("#right-inspector")).toHaveAttribute("aria-hidden", "true");
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("button", { name: "インスペクタを開く" })).not.toBeInTheDocument();
+    expect(screen.getByTestId("card-preview-state")).toHaveAttribute("data-selected-element", "");
+
+    fireEvent.click(screen.getByRole("button", { name: "mock select static text" }));
+    fireEvent.change(screen.getByLabelText("インスペクタ 内容"), {
+      target: { value: "名前" },
+    });
+    fireEvent.change(screen.getByLabelText("インスペクタ 文字色"), {
+      target: { value: "#654321" },
+    });
+    expect(currentTemplate().elements.find((element) => element.id === "name-label")).toMatchObject(
+      {
+        text: "名前",
+        color: "#654321",
+      },
+    );
   });
 
   it("passes theme and field style edits, then restores defaults", () => {

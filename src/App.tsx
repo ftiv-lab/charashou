@@ -8,10 +8,12 @@ import {
   type FieldStyle,
   type TemplateElement,
   type TemplateElementChange,
+  type TextElement,
   type ThemeConfig,
 } from "./card/template";
 import { CardPreview } from "./components/CardPreview";
 import { PropertyPanel } from "./components/PropertyPanel";
+import { getTextElementLabel, RightInspector } from "./components/RightInspector";
 import { exportPng } from "./export";
 import { useDocumentPersistence } from "./storage/useDocumentPersistence";
 
@@ -25,8 +27,13 @@ export function App() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportMessage, setExportMessage] = useState("");
   const [currentCard, setCurrentCard] = useState<{ id: string; name: string }>();
+  const [selectedElementId, setSelectedElementId] = useState<string>();
+  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
   const stageRef = useRef<Konva.Stage>(null);
   const { template, photo } = history.present;
+  const selectedElement = template.elements.find((element) => element.id === selectedElementId);
+  const selectedTextElement: TextElement | undefined =
+    selectedElement?.kind === "text" ? selectedElement : undefined;
   const canUndo = history.past.length > 0;
   const canRedo = history.future.length > 0;
 
@@ -34,6 +41,8 @@ export function App() {
     (next: EditorDocument, card?: { id: string; name: string }) => {
       dispatch({ type: "LOAD", next });
       setCurrentCard(card);
+      setSelectedElementId(undefined);
+      setIsInspectorOpen(false);
     },
     [],
   );
@@ -82,10 +91,10 @@ export function App() {
     });
   };
 
-  const handleElementChange = (id: string, change: TemplateElementChange) => {
+  const handleElementChange = (id: string, change: TemplateElementChange, mergeKey?: string) => {
     const changedElement = template.elements.find((element) => element.id === id);
     const fields =
-      changedElement?.kind === "text" && changedElement.fieldKey && change.fontSize
+      changedElement?.kind === "text" && changedElement.fieldKey && change.fontSize !== undefined
         ? template.fields.map((field) =>
             field.key === changedElement.fieldKey
               ? { ...field, style: { ...field.style, fontSize: change.fontSize } }
@@ -94,6 +103,7 @@ export function App() {
         : template.fields;
     dispatch({
       type: "EDIT",
+      mergeKey,
       next: {
         ...history.present,
         template: {
@@ -105,6 +115,17 @@ export function App() {
         },
       },
     });
+  };
+
+  const handleInspectorElementChange = (id: string, change: TemplateElementChange) => {
+    const property = Object.keys(change)[0] ?? "batch";
+    handleElementChange(id, change, `element:${id}:${property}`);
+  };
+
+  const handleSelectionChange = (id?: string) => {
+    setSelectedElementId(id);
+    const element = template.elements.find((candidate) => candidate.id === id);
+    setIsInspectorOpen(element?.kind === "text");
   };
 
   const handlePhotoUpload = (dataUrl: string) => {
@@ -131,6 +152,12 @@ export function App() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && selectedElementId) {
+        event.preventDefault();
+        setSelectedElementId(undefined);
+        setIsInspectorOpen(false);
+        return;
+      }
       if (!(event.ctrlKey || event.metaKey) || event.altKey || event.isComposing) return;
       const key = event.key.toLowerCase();
       const wantsUndo = key === "z" && !event.shiftKey;
@@ -146,7 +173,7 @@ export function App() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [canRedo, canUndo]);
+  }, [canRedo, canUndo, selectedElementId]);
 
   const handleExport = async () => {
     if (!stageRef.current || isExporting) return;
@@ -231,6 +258,8 @@ export function App() {
               ref={stageRef}
               template={template}
               photo={photo}
+              selectedElementId={selectedElementId}
+              onSelectionChange={handleSelectionChange}
               onElementChange={handleElementChange}
             />
           </div>
@@ -239,6 +268,22 @@ export function App() {
           </p>
         </section>
       </main>
+      <p className="sr-only" role="status" aria-live="polite">
+        {selectedTextElement
+          ? `${getTextElementLabel(template, selectedTextElement)}を選択しました。`
+          : ""}
+      </p>
+      {selectedTextElement ? (
+        <RightInspector
+          template={template}
+          element={selectedTextElement}
+          isOpen={isInspectorOpen}
+          onToggle={() => setIsInspectorOpen((open) => !open)}
+          onFieldValueChange={handleFieldChange}
+          onFieldStyleChange={handleFieldStyleChange}
+          onElementChange={handleInspectorElementChange}
+        />
+      ) : null}
     </>
   );
 }

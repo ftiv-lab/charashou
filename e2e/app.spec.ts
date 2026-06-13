@@ -150,6 +150,35 @@ test("undo and redo coalesce edits and support keyboard shortcuts", async ({ pag
   await expect(bandColor).toHaveValue("#123456");
 });
 
+test("text selection opens the right inspector and edits the shared template state", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+
+  const card = page.getByRole("img", { name: "カードプレビュー" });
+  const canvas = card.locator("canvas").first();
+  const before = await canvas.screenshot();
+
+  await card.click({ position: { x: 387, y: 205 } });
+  await expect(card).toBeFocused();
+  await expect(card).toHaveAttribute("data-selected-element", "name");
+  await expect(page.getByRole("heading", { name: "選択中：氏名（テキスト）" })).toBeVisible();
+  await expect(page.getByText("氏名を選択しました。")).toHaveAttribute("aria-live", "polite");
+  await expect(page.getByRole("button", { name: "インスペクタを閉じる" })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+
+  await page.getByLabel("インスペクタ 文字サイズ").fill("38");
+  await expect.poll(async () => Buffer.compare(await canvas.screenshot(), before)).not.toBe(0);
+  await expect(page.getByLabel("氏名 サイズ")).toHaveValue("38");
+
+  await page.keyboard.press("Escape");
+  await expect(card).toHaveAttribute("data-selected-element", "");
+  await expect(page.locator("#right-inspector")).toHaveCount(0);
+});
+
 test("saved cards, autosave and JSON backup restore documents", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "storage", {

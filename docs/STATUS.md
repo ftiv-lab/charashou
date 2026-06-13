@@ -3,6 +3,7 @@
 状態の単一原本。新しいセッション/Codexは AGENTS.md の次にここを読む。
 
 ## Done
+- handoffs/0013-right-inspector-text：`selectedElementId`をAppへ持ち上げ、テキスト選択時だけ開く右スライドインスペクタを追加。内容/X/Y/文字サイズ/色は既存template stateを更新し、選択は履歴外。
 - handoffs/0012-left-panel-tabs-mycards-grid：左パネルを「内容/デザイン/写真/マイカード」のARIAタブへ再編し、保存カードを2列サムネイルグリッド化。既存コントロールとロジックは維持。
 - handoffs/0011-save-indexeddb-json：Dexie/useLiveQueryによる保存カード一覧とCRUD、約2秒の現在カード自動保存・起動時復元、Zod検証付きJSON書き出し/読込、Storage Persistence要求を実装。カード/JSON読込は履歴をクリア。
 - handoffs/0010-undo-redo：`template`＋`photo`をpast/present/futureで管理する純粋historyReducer、50件上限、mergeKey coalesce、Undo/RedoボタンとCtrl系ショートカットを実装。選択は履歴外、drag/resizeは1ジェスチャ1履歴。
@@ -21,7 +22,7 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- **handoffs/0013-right-inspector-text**：`selectedElementId`をAppへ持ち上げ＋右インスペクタ（選択時だけ開くスライド／テキスト要素のみ＝内容/X/Y/文字サイズ/色）。常時3ペインにはせず段階導入。council(Claude+ChatGPT)一致＝最小1スライス。
+- なし（handoffs/0013 完了）。
 
 ## Next
 - 0013b以降：右インスペクタを写真/校章/印へ拡張、左「内容」のスタイルを段階的に右へ移設、ピン留め/localStorage永続化、画面幅別レスポンシブ（狭い画面はドロワー/ボトムシート）。
