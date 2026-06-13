@@ -18,6 +18,7 @@ export type HistoryState = {
 export type HistoryAction =
   | { type: "EDIT"; next: EditorDocument; mergeKey?: string }
   | { type: "RESET"; next: EditorDocument }
+  | { type: "LOAD"; next: EditorDocument }
   | { type: "UNDO" }
   | { type: "REDO" };
 
@@ -52,6 +53,8 @@ export function historyReducer(state: HistoryState, action: HistoryAction): Hist
         present: action.next,
         future: [],
       };
+    case "LOAD":
+      return createHistoryState(action.next);
     case "UNDO": {
       const previous = state.past[state.past.length - 1];
       if (!previous) return { ...state, lastMergeKey: undefined };

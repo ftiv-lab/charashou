@@ -21,10 +21,13 @@
     "ci": "biome ci . && npm run test && npm run build && npm run e2e"
   },
   "dependencies": {
+    "dexie": "^4.4.3",
+    "dexie-react-hooks": "^4.4.0",
     "konva": "^10.3.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "react-konva": "^19.2.5"
+    "react-konva": "^19.2.5",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
@@ -34,6 +37,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
+    "fake-indexeddb": "^6.2.5",
     "jsdom": "^29.1.1",
     "typescript": "^6.0.3",
     "vite": "^8.0.16",

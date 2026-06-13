@@ -2,6 +2,10 @@
 
 つまづき／学びの逐次メモ（1行でOK・後で Note 化）。新しいものを上に。
 
+## 2026-06-13
+- 保存と再開：Dexie/useLiveQueryで保存カード一覧とCRUD、`meta.current`への2秒デバウンス自動保存、起動時復元を追加。Zod検証付きJSONバックアップと `navigator.storage.persist()` も入れ、読込はLOADでUndo/Redo履歴をクリアする形に統一した。
+- IndexedDBテスト：Vitestでは `fake-indexeddb` を共通setupへ入れ、テストごとにcards/metaを消去。Playwrightでは保存→再読込、CRUD、JSON往復、不正JSONまで実ブラウザで固定した。
+
 ## 2026-06-12
 - Undo/Redo：template＋photoを純粋historyReducerへ移し、past/present/futureを50件上限で管理。同一入力とsliderはmergeKeyでまとめ、drag/resize・upload・resetは独立履歴、選択は履歴外に保った。
 - レビュー用スクショ自動生成：検証E2Eとは別のPlaywright設定で5状態を固定名出力しREADMEへ埋め込み。写真素材もCanvasで自前生成し、`npm run shots` だけで現状レビュー資料を更新できるようにした。

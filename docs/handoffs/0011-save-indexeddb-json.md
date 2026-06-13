@@ -1,7 +1,7 @@
 # ハンドオフ 0011 — 保存（IndexedDB 保存カード一覧 ＋ 自動保存 ＋ JSON書き出し/読み込み）
 
 - 作成：Claude / 2026-06-13
-- 状態：未着手
+- 状態：完了（Codex / 2026-06-13）
 
 ## 目的
 作ったカードを**失わず・翌日また編集**できるように。**サーバ無しのまま**、保存の便利さを入れる：
@@ -64,3 +64,9 @@ interface SavedCard {
 
 ## 完了後
 - `docs/STATUS.md` / `docs/devlog.md` 更新。
+
+## 実装結果
+- Dexie + `useLiveQuery` で保存カードの新規／上書き／別名保存、読込、複製、改名、削除と低解像度サムネイルを実装。
+- `meta.current` へ約2秒のデバウンスで現在ドキュメントを自動保存し、起動時はZod検証後に復元。マウント時に `navigator.storage.persist()` を要求。
+- Zodで検証するバージョン付きJSONの書き出し／読み込みを実装。カード／JSON読込は `LOAD` で履歴をクリアする。
+- `fake-indexeddb` を使った純ロジック／Dexie周辺テストと、保存CRUD・再読込復元・JSON往復・不正JSONを覆うPlaywright E2Eを追加。

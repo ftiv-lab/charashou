@@ -139,6 +139,81 @@ test("undo and redo coalesce edits and support keyboard shortcuts", async ({ pag
   await expect(bandColor).toHaveValue("#123456");
 });
 
+test("saved cards, autosave and JSON backup restore documents", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "storage", {
+      configurable: true,
+      value: {
+        persist: async () => {
+          localStorage.setItem("persist-called", "yes");
+          return true;
+        },
+      },
+    });
+  });
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("persist-called"))).toBe("yes");
+
+  const name = page.getByLabel("氏名", { exact: true });
+  await name.fill("保存対象 キャラ");
+  await expect(page.locator(".storage-status")).toHaveText("自動保存しました。", {
+    timeout: 5000,
+  });
+
+  await page.reload();
+  await page.evaluate(() => document.fonts.ready);
+  await expect(name).toHaveValue("保存対象 キャラ");
+  await expect(page.getByRole("button", { name: "Undo" })).toBeDisabled();
+
+  const saveName = page.getByLabel("保存名", { exact: true });
+  await saveName.fill("カードA");
+  await page.getByRole("button", { name: "現在カードを保存" }).click();
+  await expect(page.locator(".saved-card")).toHaveCount(1);
+  await expect(page.locator(".saved-card-thumbnail")).toHaveAttribute("src", /^data:image\/png/);
+
+  await name.fill("未保存の変更");
+  const cardA = page
+    .locator(".saved-card")
+    .filter({ has: page.getByRole("textbox", { name: "カードA の保存名" }) });
+  await cardA.getByRole("button", { name: "読込" }).click();
+  await expect(name).toHaveValue("保存対象 キャラ");
+  await expect(page.getByRole("button", { name: "Undo" })).toBeDisabled();
+
+  await cardA.getByRole("button", { name: "複製" }).click();
+  await expect(page.locator(".saved-card")).toHaveCount(2);
+  const copyName = page.getByRole("textbox", { name: "カードA のコピー の保存名" });
+  await copyName.fill("カードB");
+  const cardB = page.locator(".saved-card").filter({ has: copyName });
+  await cardB.getByRole("button", { name: "改名" }).click();
+  const renamedCard = page
+    .locator(".saved-card")
+    .filter({ has: page.getByRole("textbox", { name: "カードB の保存名" }) });
+  await expect(renamedCard).toBeVisible();
+  await renamedCard.getByRole("button", { name: "削除" }).click();
+  await expect(page.locator(".saved-card")).toHaveCount(1);
+
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "JSON書き出し" }).click();
+  const jsonDownload = await downloadPromise;
+  expect(jsonDownload.suggestedFilename()).toBe("charashou-カードA.json");
+  const jsonPath = await jsonDownload.path();
+  expect(jsonPath).not.toBeNull();
+
+  await name.fill("JSON前の変更");
+  await page.getByLabel("JSON読み込み").setInputFiles(jsonPath as string);
+  await expect(name).toHaveValue("保存対象 キャラ");
+  await expect(page.getByRole("button", { name: "Undo" })).toBeDisabled();
+  await expect(page.locator(".storage-action-status")).toHaveText("JSONを読み込みました。");
+
+  await page.getByLabel("JSON読み込み").setInputFiles({
+    name: "invalid.json",
+    mimeType: "application/json",
+    buffer: Buffer.from('{"invalid":true}'),
+  });
+  await expect(page.locator(".storage-error")).toHaveText("JSONの形式が正しくありません。");
+});
+
 test("content elements can be selected, snapped, resized and reset", async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => document.fonts.ready);

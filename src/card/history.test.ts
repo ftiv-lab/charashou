@@ -83,6 +83,16 @@ describe("historyReducer", () => {
     expect(historyReducer(state, { type: "UNDO" }).present).toBe(initial);
   });
 
+  it("loads a document while clearing all history", () => {
+    const initial = documentWithName("initial");
+    const edited = documentWithName("edited");
+    const loaded = documentWithName("loaded");
+    const editedState = historyReducer(createHistoryState(initial), { type: "EDIT", next: edited });
+    const state = historyReducer(editedState, { type: "LOAD", next: loaded });
+
+    expect(state).toEqual(createHistoryState(loaded));
+  });
+
   it("keeps only the most recent history entries", () => {
     let state = createHistoryState(documentWithName("0"));
     for (let index = 1; index <= HISTORY_LIMIT + 5; index += 1) {

@@ -271,6 +271,109 @@ body {
 .photo-error {
   color: #ff9d9d;
 }
+.storage-section h3 {
+  margin: 2px 0 0;
+  color: var(--text);
+  font-size: 13px;
+}
+.storage-note,
+.storage-status,
+.storage-action-status,
+.storage-error {
+  min-height: 18px;
+  margin: 0;
+  font-size: 12px;
+}
+.storage-note,
+.storage-status,
+.storage-action-status {
+  color: var(--text-muted);
+}
+.storage-error {
+  color: #ff9d9d;
+}
+.storage-primary-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 6px;
+}
+.saved-card-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.storage-command,
+.saved-card-actions button {
+  min-height: 34px;
+  padding: 6px 8px;
+  color: var(--text);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+.storage-command:hover,
+.saved-card-actions button:hover {
+  background: var(--bg-hover);
+}
+.storage-file-command {
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.storage-file-command input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.saved-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.saved-card {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 10px;
+  padding: 8px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.saved-card-thumbnail {
+  width: 96px;
+  aspect-ratio: 680 / 430;
+  object-fit: cover;
+  align-self: start;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.saved-card-thumbnail-empty {
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  font-size: 9px;
+}
+.saved-card-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.saved-card-body time {
+  color: var(--text-muted);
+  font-size: 10px;
+}
 .field-list {
   display: flex;
   flex-direction: column;

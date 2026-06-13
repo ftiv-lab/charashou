@@ -1,4 +1,6 @@
-import { type ChangeEvent, useState } from "react";
+import type Konva from "konva";
+import { type ChangeEvent, type RefObject, useState } from "react";
+import type { EditorDocument } from "../card/history";
 import {
   PHOTO_ACCEPT,
   type PhotoAdjustmentKey,
@@ -7,27 +9,42 @@ import {
 } from "../card/photo";
 import type { FieldKey, FieldStyle, Template, ThemeConfig } from "../card/template";
 import { FieldEditor } from "./FieldEditor";
+import { StoragePanel } from "./StoragePanel";
 import { ThemePanel } from "./ThemePanel";
 
 type PropertyPanelProps = {
   template: Template;
   photo: PhotoState;
+  doc: EditorDocument;
+  stageRef: RefObject<Konva.Stage | null>;
+  currentCardId?: string;
+  currentCardName?: string;
+  autoSaveMessage: string;
   onFieldValueChange: (key: FieldKey, value: string) => void;
   onFieldStyleChange: (key: FieldKey, style: Partial<FieldStyle>) => void;
   onThemeChange: <Key extends keyof ThemeConfig>(key: Key, value: ThemeConfig[Key]) => void;
   onPhotoUpload: (dataUrl: string) => void;
   onPhotoAdjustment: (key: PhotoAdjustmentKey, value: number) => void;
+  onLoadDocument: (doc: EditorDocument, card?: { id: string; name: string }) => void;
+  onCurrentCardChange: (card?: { id: string; name: string }) => void;
   onReset: () => void;
 };
 
 export function PropertyPanel({
   template,
   photo,
+  doc,
+  stageRef,
+  currentCardId,
+  currentCardName,
+  autoSaveMessage,
   onFieldValueChange,
   onFieldStyleChange,
   onThemeChange,
   onPhotoUpload,
   onPhotoAdjustment,
+  onLoadDocument,
+  onCurrentCardChange,
   onReset,
 }: PropertyPanelProps) {
   const [photoError, setPhotoError] = useState("");
@@ -129,6 +146,16 @@ export function PropertyPanel({
           </span>
         </label>
       </section>
+
+      <StoragePanel
+        doc={doc}
+        stageRef={stageRef}
+        currentCardId={currentCardId}
+        currentCardName={currentCardName}
+        autoSaveMessage={autoSaveMessage}
+        onLoad={onLoadDocument}
+        onCurrentCardChange={onCurrentCardChange}
+      />
 
       <button className="btn reset-btn" type="button" onClick={onReset}>
         既定に戻す

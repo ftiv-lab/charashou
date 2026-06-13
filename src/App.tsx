@@ -1,6 +1,6 @@
 import type Konva from "konva";
-import { useEffect, useReducer, useRef, useState } from "react";
-import { createHistoryState, historyReducer } from "./card/history";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { createHistoryState, type EditorDocument, historyReducer } from "./card/history";
 import { DEFAULT_PHOTO_STATE, type PhotoAdjustmentKey } from "./card/photo";
 import {
   createDefaultTemplate,
@@ -13,6 +13,7 @@ import {
 import { CardPreview } from "./components/CardPreview";
 import { PropertyPanel } from "./components/PropertyPanel";
 import { exportPng } from "./export";
+import { useDocumentPersistence } from "./storage/useDocumentPersistence";
 
 export function App() {
   const [history, dispatch] = useReducer(historyReducer, undefined, () =>
@@ -23,10 +24,21 @@ export function App() {
   );
   const [isExporting, setIsExporting] = useState(false);
   const [exportMessage, setExportMessage] = useState("");
+  const [currentCard, setCurrentCard] = useState<{ id: string; name: string }>();
   const stageRef = useRef<Konva.Stage>(null);
   const { template, photo } = history.present;
   const canUndo = history.past.length > 0;
   const canRedo = history.future.length > 0;
+
+  const handleLoadDocument = useCallback(
+    (next: EditorDocument, card?: { id: string; name: string }) => {
+      dispatch({ type: "LOAD", next });
+      setCurrentCard(card);
+    },
+    [],
+  );
+
+  const { message: autoSaveMessage } = useDocumentPersistence(history.present, handleLoadDocument);
 
   const handleFieldChange = (key: FieldKey, value: string) => {
     dispatch({
@@ -197,12 +209,19 @@ export function App() {
       <main className="app">
         <PropertyPanel
           template={template}
+          doc={history.present}
           onFieldValueChange={handleFieldChange}
           onFieldStyleChange={handleFieldStyleChange}
           onThemeChange={handleThemeChange}
           photo={photo}
+          stageRef={stageRef}
+          currentCardId={currentCard?.id}
+          currentCardName={currentCard?.name}
+          autoSaveMessage={autoSaveMessage}
           onPhotoUpload={handlePhotoUpload}
           onPhotoAdjustment={handlePhotoAdjustment}
+          onLoadDocument={handleLoadDocument}
+          onCurrentCardChange={setCurrentCard}
           onReset={handleReset}
         />
 

@@ -61,6 +61,9 @@
 - 通常変更：`npm run check`（Biome + Vitest + build）。
 - UI/写真/PNG出力変更：`npm run check:e2e`。
 - レビュー用画像の更新：`npm run shots`。成果物生成専用であり、`check` / `check:e2e` / CIには含めない。
+- **ブラウザ検証の既定はリポジトリ内のPlaywright**。挙動は `npm run e2e`、固定スクリーンショットは `npm run shots` で確認する。
+- in-app Browserは、対話的なDOM調査やユーザーと同じ画面を見ながら確認する必要がある場合だけ追加で使う。Browserプラグインが利用不能／接続不調でも作業を止めず、Playwrightへ戻る。
+- Playwrightで受け入れ基準を十分に検証できている場合、in-app Browserの実行はDoneの必須条件にしない。
 - Playwright E2Eは dev server を自動起動するため、E2E用に別途 `npm run dev` を常駐させない。
 - dev serverを手で起動した場合、作業終了前に必ず止める。
 - 新しいhandoffには「完了確認コマンド」を必ず書く。

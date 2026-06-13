@@ -157,7 +157,7 @@ describe("App", () => {
         files: [new File(["svg"], "photo.svg", { type: "image/svg+xml" })],
       },
     });
-    expect(screen.getByRole("alert")).toHaveTextContent(
+    expect(document.querySelector(".photo-error")).toHaveTextContent(
       "PNG、JPEG、WebP形式の画像を選択してください。",
     );
 
@@ -169,7 +169,7 @@ describe("App", () => {
     await waitFor(() => {
       expect(currentPhoto().dataUrl).toMatch(/^data:image\/png;base64,/);
     });
-    expect(screen.getByRole("alert")).toBeEmptyDOMElement();
+    expect(document.querySelector(".photo-error")).toBeEmptyDOMElement();
 
     const uploadedDataUrl = currentPhoto().dataUrl;
     fireEvent.change(screen.getByLabelText("ズーム"), { target: { value: "1.5" } });
