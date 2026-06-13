@@ -120,6 +120,7 @@ body {
 }
 .btn:focus-visible,
 .history-btn:focus-visible,
+.panel-tab:focus-visible,
 .field input:focus-visible,
 .field textarea:focus-visible,
 .field select:focus-visible,
@@ -206,8 +207,47 @@ body {
 }
 .property-panel {
   max-height: calc(100vh - 88px);
-  overflow-y: auto;
+  overflow: hidden;
   scrollbar-color: var(--border) var(--panel);
+}
+.panel-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  flex: none;
+  border-bottom: 1px solid var(--border);
+}
+.panel-tab {
+  min-width: 0;
+  min-height: 38px;
+  padding: 8px 3px;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.panel-tab:hover {
+  color: var(--text);
+  background: var(--bg-hover);
+}
+.panel-tab[aria-selected="true"] {
+  color: #fff;
+  border-bottom-color: var(--accent);
+  background: rgba(61, 123, 255, 0.12);
+}
+.tab-panel:not([hidden]) {
+  min-height: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-right: 3px;
+}
+.tab-panel[hidden] {
+  display: none;
 }
 .property-section {
   display: flex;
@@ -215,6 +255,11 @@ body {
   gap: var(--gap);
   padding-bottom: 14px;
   border-bottom: 1px solid var(--border);
+}
+.tab-panel > .property-section {
+  flex: none;
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 .property-section h2 {
   margin: 0;
@@ -333,24 +378,25 @@ body {
   opacity: 0;
 }
 .saved-card-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 .saved-card {
-  display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 10px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   padding: 8px;
   background: var(--bg-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
 .saved-card-thumbnail {
-  width: 96px;
+  width: 100%;
   aspect-ratio: 680 / 430;
   object-fit: cover;
   align-self: start;
@@ -371,8 +417,11 @@ body {
   gap: 6px;
 }
 .saved-card-body time {
+  overflow: hidden;
   color: var(--text-muted);
   font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .field-list {
   display: flex;
@@ -453,6 +502,10 @@ body {
   }
   .property-panel {
     max-height: none;
+    overflow: visible;
+  }
+  .tab-panel:not([hidden]) {
+    overflow-y: visible;
   }
   .stage {
     align-items: flex-start;

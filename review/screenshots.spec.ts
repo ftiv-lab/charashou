@@ -17,6 +17,10 @@ async function capture(page: Page, filename: string) {
   });
 }
 
+async function openPanelTab(page: Page, name: "内容" | "デザイン" | "写真" | "マイカード") {
+  await page.getByRole("tab", { name }).click();
+}
+
 async function createPlaceholderPhoto(page: Page): Promise<Buffer> {
   const base64 = await page.evaluate(() => {
     const canvas = document.createElement("canvas");
@@ -88,6 +92,7 @@ test("generate review screenshots", async ({ page }) => {
   await nameEditor.getByText("スタイル", { exact: true }).click();
   await nameEditor.getByLabel("氏名 サイズ").fill("34");
   await nameEditor.getByLabel("氏名 フォント").selectOption('"Noto Sans JP", sans-serif');
+  await openPanelTab(page, "デザイン");
   await page.getByLabel("カード背景").fill("#f4fbff");
   await page.getByLabel("帯の色").fill("#dce8ff");
   await page.getByLabel("文字色", { exact: true }).fill("#24324f");
@@ -95,6 +100,7 @@ test("generate review screenshots", async ({ page }) => {
   await capture(page, "02-customize.png");
 
   await openApp(page);
+  await openPanelTab(page, "写真");
   const photo = await createPlaceholderPhoto(page);
   await page.getByLabel("顔写真").setInputFiles({
     name: "generated-character.png",
@@ -120,14 +126,17 @@ test("generate review screenshots", async ({ page }) => {
   await page.mouse.up();
 
   await openApp(page);
+  await openPanelTab(page, "マイカード");
+  await page.getByLabel("保存名", { exact: true }).fill("コロンド学生証");
+  await page.getByRole("button", { name: "現在カードを保存" }).click();
+  await expect(page.locator(".saved-card")).toHaveCount(1);
   await page.addStyleTag({
     content: `
       .topbar, .stage { display: none !important; }
       .app { display: block !important; max-width: 620px; padding: 24px; }
-      .property-panel { max-height: none !important; width: 560px; }
+      .property-panel { max-height: none !important; width: 560px; overflow: visible !important; }
     `,
   });
-  await page.locator(".field-editor").first().getByText("スタイル", { exact: true }).click();
   await page.locator(".property-panel").screenshot({
     path: path.join(screenshotDirectory, "05-panel.png"),
     animations: "disabled",

@@ -65,10 +65,34 @@ function currentPhoto(): PhotoState {
   return JSON.parse(value) as PhotoState;
 }
 
+function selectPanelTab(name: "内容" | "デザイン" | "写真" | "マイカード") {
+  fireEvent.click(screen.getByRole("tab", { name }));
+}
+
 describe("App", () => {
   beforeEach(() => {
     vi.mocked(exportPng).mockReset();
     vi.mocked(exportPng).mockResolvedValue();
+  });
+
+  it("exposes accessible tabs and supports arrow-key navigation", () => {
+    render(<App />);
+
+    const content = screen.getByRole("tab", { name: "内容" });
+    const design = screen.getByRole("tab", { name: "デザイン" });
+    expect(screen.getByRole("tablist", { name: "編集パネル" })).toBeInTheDocument();
+    expect(content).toHaveAttribute("aria-selected", "true");
+    expect(content).toHaveAttribute("aria-controls", "panel-content");
+    expect(screen.getByRole("tabpanel", { name: "内容" })).toBeVisible();
+
+    content.focus();
+    fireEvent.keyDown(content, { key: "ArrowRight" });
+    expect(design).toHaveFocus();
+    expect(design).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel", { name: "デザイン" })).toBeVisible();
+
+    fireEvent.keyDown(design, { key: "End" });
+    expect(screen.getByRole("tab", { name: "マイカード" })).toHaveFocus();
   });
 
   it("passes text field edits into the template preview state", () => {
@@ -109,14 +133,15 @@ describe("App", () => {
   it("passes theme and field style edits, then restores defaults", () => {
     render(<App />);
 
-    fireEvent.change(screen.getByLabelText("帯の色"), {
-      target: { value: "#123456" },
-    });
     fireEvent.change(screen.getByLabelText("氏名 サイズ"), {
       target: { value: "32" },
     });
     fireEvent.change(screen.getByLabelText("氏名 揃え"), {
       target: { value: "right" },
+    });
+    selectPanelTab("デザイン");
+    fireEvent.change(screen.getByLabelText("帯の色"), {
+      target: { value: "#123456" },
     });
     fireEvent.change(screen.getByLabelText("透かし文字"), {
       target: { value: "" },
@@ -149,6 +174,7 @@ describe("App", () => {
 
   it("validates uploads and passes photo adjustments into the preview", async () => {
     render(<App />);
+    selectPanelTab("写真");
 
     const input = screen.getByLabelText("顔写真");
     expect(input).toHaveAttribute("accept", "image/png,image/jpeg,image/webp");

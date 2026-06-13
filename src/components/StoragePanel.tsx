@@ -80,10 +80,7 @@ function SavedCardItem({
         </time>
         <div className="saved-card-actions">
           <button type="button" onClick={() => onLoad(card.doc, card)}>
-            読込
-          </button>
-          <button type="button" onClick={rename}>
-            改名
+            開く
           </button>
           <button
             type="button"
@@ -93,6 +90,9 @@ function SavedCardItem({
             }}
           >
             複製
+          </button>
+          <button type="button" onClick={rename}>
+            改名
           </button>
           <button
             type="button"
@@ -237,7 +237,7 @@ export function StoragePanel({
           {error}
         </p>
       ) : null}
-      <h3>保存カード一覧</h3>
+      <h3>保存カード</h3>
       {cards === undefined ? <p className="storage-note">読み込み中…</p> : null}
       {cards?.length === 0 ? <p className="storage-note">保存カードはまだありません。</p> : null}
       <ul className="saved-card-list">

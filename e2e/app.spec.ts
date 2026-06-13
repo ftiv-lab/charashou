@@ -1,5 +1,9 @@
 import { readFile } from "node:fs/promises";
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+
+async function openPanelTab(page: Page, name: "内容" | "デザイン" | "写真" | "マイカード") {
+  await page.getByRole("tab", { name }).click();
+}
 
 test("core Konva card workflow stays intact", async ({ page }) => {
   await page.goto("/");
@@ -20,6 +24,7 @@ test("core Konva card workflow stays intact", async ({ page }) => {
   await nameEditor.getByText("スタイル", { exact: true }).click();
   await nameEditor.getByLabel("氏名 サイズ").fill("32");
   await nameEditor.getByLabel("氏名 揃え").selectOption("right");
+  await openPanelTab(page, "デザイン");
   await page.getByLabel("帯の色").fill("#123456");
   await page.getByLabel("透かし文字").fill("");
 
@@ -27,7 +32,9 @@ test("core Konva card workflow stays intact", async ({ page }) => {
   const customized = await canvas.screenshot();
 
   await page.getByRole("button", { name: "既定に戻す" }).click();
+  await openPanelTab(page, "内容");
   await expect(page.getByLabel("氏名", { exact: true })).toHaveValue("白峰 雪菜");
+  await openPanelTab(page, "デザイン");
   await expect(page.getByLabel("帯の色")).toHaveValue("#fbe2ec");
   await expect(page.getByLabel("透かし文字")).toHaveValue("COROND JOSHI GAKUIN ");
   await expect.poll(async () => Buffer.compare(await canvas.screenshot(), customized)).not.toBe(0);
@@ -49,6 +56,7 @@ test("core Konva card workflow stays intact", async ({ page }) => {
     }
     return source.toDataURL("image/png").split(",")[1];
   });
+  await openPanelTab(page, "写真");
   const photoInput = page.getByLabel("顔写真");
   await expect(photoInput).toHaveAttribute("accept", "image/png,image/jpeg,image/webp");
   await photoInput.setInputFiles({
@@ -122,6 +130,7 @@ test("undo and redo coalesce edits and support keyboard shortcuts", async ({ pag
   await redo.click();
   await expect(name).toHaveValue("Asaka Hiyori");
 
+  await openPanelTab(page, "デザイン");
   const bandColor = page.getByLabel("帯の色");
   await bandColor.fill("#123456");
   await page.keyboard.press("Control+Z");
@@ -133,9 +142,11 @@ test("undo and redo coalesce edits and support keyboard shortcuts", async ({ pag
   await expect(bandColor).toHaveValue("#123456");
 
   await page.getByRole("button", { name: "既定に戻す" }).click();
+  await openPanelTab(page, "内容");
   await expect(name).toHaveValue("白峰 雪菜");
   await undo.click();
   await expect(name).toHaveValue("Asaka Hiyori");
+  await openPanelTab(page, "デザイン");
   await expect(bandColor).toHaveValue("#123456");
 });
 
@@ -157,6 +168,7 @@ test("saved cards, autosave and JSON backup restore documents", async ({ page })
 
   const name = page.getByLabel("氏名", { exact: true });
   await name.fill("保存対象 キャラ");
+  await openPanelTab(page, "マイカード");
   await expect(page.locator(".storage-status")).toHaveText("自動保存しました。", {
     timeout: 5000,
   });
@@ -166,22 +178,35 @@ test("saved cards, autosave and JSON backup restore documents", async ({ page })
   await expect(name).toHaveValue("保存対象 キャラ");
   await expect(page.getByRole("button", { name: "Undo" })).toBeDisabled();
 
+  await openPanelTab(page, "マイカード");
   const saveName = page.getByLabel("保存名", { exact: true });
   await saveName.fill("カードA");
   await page.getByRole("button", { name: "現在カードを保存" }).click();
   await expect(page.locator(".saved-card")).toHaveCount(1);
   await expect(page.locator(".saved-card-thumbnail")).toHaveAttribute("src", /^data:image\/png/);
 
+  await openPanelTab(page, "内容");
   await name.fill("未保存の変更");
+  await openPanelTab(page, "マイカード");
   const cardA = page
     .locator(".saved-card")
     .filter({ has: page.getByRole("textbox", { name: "カードA の保存名" }) });
-  await cardA.getByRole("button", { name: "読込" }).click();
+  await cardA.getByRole("button", { name: "開く" }).click();
+  await openPanelTab(page, "内容");
   await expect(name).toHaveValue("保存対象 キャラ");
   await expect(page.getByRole("button", { name: "Undo" })).toBeDisabled();
 
+  await openPanelTab(page, "マイカード");
   await cardA.getByRole("button", { name: "複製" }).click();
   await expect(page.locator(".saved-card")).toHaveCount(2);
+  const savedCardBoxes = await page.locator(".saved-card").evaluateAll((cards) =>
+    cards.map((card) => {
+      const box = card.getBoundingClientRect();
+      return { x: box.x, y: box.y };
+    }),
+  );
+  expect(Math.abs(savedCardBoxes[0].y - savedCardBoxes[1].y)).toBeLessThan(2);
+  expect(savedCardBoxes[0].x).not.toBe(savedCardBoxes[1].x);
   const copyName = page.getByRole("textbox", { name: "カードA のコピー の保存名" });
   await copyName.fill("カードB");
   const cardB = page.locator(".saved-card").filter({ has: copyName });
@@ -200,10 +225,14 @@ test("saved cards, autosave and JSON backup restore documents", async ({ page })
   const jsonPath = await jsonDownload.path();
   expect(jsonPath).not.toBeNull();
 
+  await openPanelTab(page, "内容");
   await name.fill("JSON前の変更");
+  await openPanelTab(page, "マイカード");
   await page.getByLabel("JSON読み込み").setInputFiles(jsonPath as string);
+  await openPanelTab(page, "内容");
   await expect(name).toHaveValue("保存対象 キャラ");
   await expect(page.getByRole("button", { name: "Undo" })).toBeDisabled();
+  await openPanelTab(page, "マイカード");
   await expect(page.locator(".storage-action-status")).toHaveText("JSONを読み込みました。");
 
   await page.getByLabel("JSON読み込み").setInputFiles({

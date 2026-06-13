@@ -3,6 +3,7 @@
 状態の単一原本。新しいセッション/Codexは AGENTS.md の次にここを読む。
 
 ## Done
+- handoffs/0012-left-panel-tabs-mycards-grid：左パネルを「内容/デザイン/写真/マイカード」のARIAタブへ再編し、保存カードを2列サムネイルグリッド化。既存コントロールとロジックは維持。
 - handoffs/0011-save-indexeddb-json：Dexie/useLiveQueryによる保存カード一覧とCRUD、約2秒の現在カード自動保存・起動時復元、Zod検証付きJSON書き出し/読込、Storage Persistence要求を実装。カード/JSON読込は履歴をクリア。
 - handoffs/0010-undo-redo：`template`＋`photo`をpast/present/futureで管理する純粋historyReducer、50件上限、mergeKey coalesce、Undo/RedoボタンとCtrl系ショートカットを実装。選択は履歴外、drag/resizeは1ジェスチャ1履歴。
 - handoffs/0009-review-screenshots：Playwright専用設定と `npm run shots` で、全体／カスタム／自前生成写真／Transformer＋ガイド／パネルの5枚を固定名生成しREADMEへ埋め込み。検証E2Eとは分離。
@@ -20,7 +21,7 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- **handoffs/0012-left-panel-tabs-mycards-grid**：左パネルを「内容/デザイン/写真/マイカード」のタブ化＋保存カードをサムネイル・グリッド化（レイアウト整理のみ・新機能なし）。council(Claude+ChatGPT)一致＝段階導入Step1+2。
+- なし（handoffs/0012 完了）。
 
 ## Next
 - 0013：右インスペクタ（文脈依存：未選択=全体テーマ／要素選択=その要素のスタイル・位置）＋`selectedElementId`をAppへ持ち上げ＋左/中央/右の3ペイン化。
