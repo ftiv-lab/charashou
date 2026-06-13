@@ -41,6 +41,15 @@ vi.mock("./components/CardPreview", () => ({
         <button type="button" onClick={() => onSelectionChange("name-label")}>
           mock select static text
         </button>
+        <button type="button" onClick={() => onSelectionChange("photo")}>
+          mock select photo
+        </button>
+        <button type="button" onClick={() => onSelectionChange("crest")}>
+          mock select crest
+        </button>
+        <button type="button" onClick={() => onSelectionChange("seal")}>
+          mock select seal
+        </button>
         <button
           type="button"
           onClick={() =>
@@ -158,6 +167,8 @@ describe("App", () => {
     });
     fireEvent.change(screen.getByLabelText("インスペクタ X"), { target: { value: "310" } });
     fireEvent.change(screen.getByLabelText("インスペクタ Y"), { target: { value: "195" } });
+    fireEvent.change(screen.getByLabelText("インスペクタ 幅"), { target: { value: "220" } });
+    fireEvent.change(screen.getByLabelText("インスペクタ 高さ"), { target: { value: "44" } });
     fireEvent.change(screen.getByLabelText("インスペクタ 文字サイズ"), {
       target: { value: "36" },
     });
@@ -173,6 +184,8 @@ describe("App", () => {
     expect(changed.elements.find((element) => element.id === "name")).toMatchObject({
       x: 310,
       y: 195,
+      width: 220,
+      height: 44,
     });
 
     fireEvent.click(toggle);
@@ -198,6 +211,49 @@ describe("App", () => {
         color: "#654321",
       },
     );
+  });
+
+  it("edits photo adjustments and shared element geometry through the right inspector", async () => {
+    render(<App />);
+    selectPanelTab("写真");
+    fireEvent.change(screen.getByLabelText("顔写真"), {
+      target: {
+        files: [new File(["photo"], "photo.png", { type: "image/png" })],
+      },
+    });
+    await waitFor(() => expect(currentPhoto().dataUrl).toMatch(/^data:image\/png;base64,/));
+
+    fireEvent.click(screen.getByRole("button", { name: "mock select photo" }));
+    expect(screen.getByRole("heading", { name: "選択中：写真（写真）" })).toBeVisible();
+    expect(screen.getByText("写真を選択しました。")).toHaveAttribute("aria-live", "polite");
+
+    fireEvent.change(screen.getByLabelText("インスペクタ 幅"), { target: { value: "160" } });
+    fireEvent.change(screen.getByLabelText("インスペクタ 高さ"), { target: { value: "200" } });
+    fireEvent.change(screen.getByLabelText("インスペクタ ズーム"), {
+      target: { value: "1.75" },
+    });
+    fireEvent.change(screen.getByLabelText("インスペクタ 横位置"), {
+      target: { value: "0.3" },
+    });
+    fireEvent.change(screen.getByLabelText("インスペクタ 縦位置"), {
+      target: { value: "-0.2" },
+    });
+
+    expect(currentPhoto()).toMatchObject({ zoom: 1.75, offsetX: 0.3, offsetY: -0.2 });
+    expect(currentTemplate().elements.find((element) => element.id === "photo")).toMatchObject({
+      width: 160,
+      height: 200,
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "mock select crest" }));
+    expect(screen.getByRole("heading", { name: "選択中：校章（校章）" })).toBeVisible();
+    expect(screen.getByLabelText("インスペクタ X")).toBeVisible();
+    expect(screen.getByLabelText("インスペクタ 幅")).toBeVisible();
+    expect(screen.queryByLabelText("インスペクタ ズーム")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("インスペクタ 内容")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "mock select seal" }));
+    expect(screen.getByRole("heading", { name: "選択中：印（印）" })).toBeVisible();
   });
 
   it("passes theme and field style edits, then restores defaults", () => {

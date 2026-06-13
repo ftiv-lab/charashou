@@ -290,6 +290,7 @@ export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function Ca
   const transformerRef = useRef<Konva.Transformer>(null);
   const [fontsReady, setFontsReady] = useState(false);
   const [guides, setGuides] = useState<SnapGuide[]>([]);
+  const [hoveredElementId, setHoveredElementId] = useState<string>();
 
   useImperativeHandle(forwardedRef, () => stageRef.current as Konva.Stage);
 
@@ -304,6 +305,7 @@ export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function Ca
   }, []);
 
   const selectedElement = template.elements.find((element) => element.id === selectedElementId);
+  const hoveredElement = template.elements.find((element) => element.id === hoveredElementId);
 
   const selectElement = (id?: string) => {
     onSelectionChange(id);
@@ -338,12 +340,18 @@ export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function Ca
         selectElement(element.id);
       },
       onMouseEnter: (event) => {
+        setHoveredElementId(element.id);
         const stage = event.target.getStage();
-        if (stage) stage.container().style.cursor = "move";
+        if (stage) stage.container().style.cursor = "pointer";
       },
       onMouseLeave: (event) => {
+        setHoveredElementId(undefined);
         const stage = event.target.getStage();
         if (stage) stage.container().style.cursor = "default";
+      },
+      onDragStart: (event) => {
+        const stage = event.target.getStage();
+        if (stage) stage.container().style.cursor = "grabbing";
       },
       onDragMove: (event) => {
         const node = event.target;
@@ -363,6 +371,8 @@ export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function Ca
       onDragEnd: (event) => {
         onElementChange(element.id, { x: event.target.x(), y: event.target.y() });
         setGuides([]);
+        const stage = event.target.getStage();
+        if (stage) stage.container().style.cursor = "pointer";
       },
       onTransformEnd: (event) => {
         const node = event.target;
@@ -395,6 +405,7 @@ export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function Ca
       aria-label="カードプレビュー"
       data-renderer="konva"
       data-selected-element={selectedElementId ?? ""}
+      data-hovered-element={hoveredElementId ?? ""}
       data-guide-count={guides.length}
       tabIndex={-1}
       style={{ width: template.size.width, height: template.size.height }}
@@ -423,6 +434,20 @@ export const CardPreview = forwardRef<Konva.Stage, CardPreviewProps>(function Ca
           ))}
         </Layer>
         <Layer name="editor-ui">
+          {hoveredElement && hoveredElement.id !== selectedElementId ? (
+            <Rect
+              x={hoveredElement.x}
+              y={hoveredElement.y}
+              width={hoveredElement.width}
+              height={hoveredElement.height}
+              rotation={hoveredElement.rotation ?? 0}
+              stroke="#3d7bff"
+              strokeWidth={1}
+              dash={[4, 3]}
+              opacity={0.7}
+              listening={false}
+            />
+          ) : null}
           {guides.map((guide) => (
             <Line
               key={`${guide.orientation}-${guide.position}`}

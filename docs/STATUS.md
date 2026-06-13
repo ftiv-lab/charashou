@@ -3,6 +3,7 @@
 状態の単一原本。新しいセッション/Codexは AGENTS.md の次にここを読む。
 
 ## Done
+- handoffs/0013b-inspector-photo-crest-discoverability：右インスペクタをtext/写真/校章/印へ拡張。共通の位置・サイズと写真調整を既存template/photo stateへ接続し、クリック案内・ホバー枠・pointerカーソルで発見性も改善。
 - handoffs/0013-right-inspector-text：`selectedElementId`をAppへ持ち上げ、テキスト選択時だけ開く右スライドインスペクタを追加。内容/X/Y/文字サイズ/色は既存template stateを更新し、選択は履歴外。
 - handoffs/0012-left-panel-tabs-mycards-grid：左パネルを「内容/デザイン/写真/マイカード」のARIAタブへ再編し、保存カードを2列サムネイルグリッド化。既存コントロールとロジックは維持。
 - handoffs/0011-save-indexeddb-json：Dexie/useLiveQueryによる保存カード一覧とCRUD、約2秒の現在カード自動保存・起動時復元、Zod検証付きJSON書き出し/読込、Storage Persistence要求を実装。カード/JSON読込は履歴をクリア。
@@ -22,7 +23,7 @@
 - **Phase 0 完了**：public公開 `github.com/ftiv-lab/charashou` ＋ GitHub Pages（main/root）→ `https://ftiv-lab.github.io/charashou/`。
 
 ## Doing
-- **handoffs/0013b-inspector-photo-crest-discoverability**：右インスペクタを写真/校章/印にも対応（共通=位置・サイズ、写真=ズーム/横/縦）＋発見性改善（ヒント文＋ホバーで編集可能要素をハイライト）。
+- なし。
 
 ## Next
 - 0013c以降：左「内容」のスタイルを段階的に右へ移設、右パネルのピン留め/localStorage永続化、画面幅別レスポンシブ（狭い画面はドロワー/ボトムシート）。

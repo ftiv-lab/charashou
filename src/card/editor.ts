@@ -1,4 +1,4 @@
-import type { TemplateElement, TemplateElementChange } from "./template";
+import type { EditableElement, TemplateElement, TemplateElementChange } from "./template";
 
 export const SNAP_THRESHOLD = 5;
 export const MIN_ELEMENT_SIZE = 12;
@@ -24,7 +24,7 @@ export function isFrameElement(element: TemplateElement): boolean {
   return element.kind === "rect" || element.kind === "watermark";
 }
 
-export function isEditableElement(element: TemplateElement): boolean {
+export function isEditableElement(element: TemplateElement): element is EditableElement {
   return !isFrameElement(element);
 }
 

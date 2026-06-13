@@ -179,6 +179,59 @@ test("text selection opens the right inspector and edits the shared template sta
   await expect(page.locator("#right-inspector")).toHaveCount(0);
 });
 
+test("photo and crest selections expose their shared inspector controls", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+
+  const photoBase64 = await page.evaluate(() => {
+    const source = document.createElement("canvas");
+    source.width = 40;
+    source.height = 40;
+    const context = source.getContext("2d");
+    if (!context) throw new Error("Canvas context was not available");
+    context.fillStyle = "#ff4d6d";
+    context.fillRect(0, 0, 20, 40);
+    context.fillStyle = "#3d7bff";
+    context.fillRect(20, 0, 20, 40);
+    return source.toDataURL("image/png").split(",")[1];
+  });
+  await openPanelTab(page, "写真");
+  await page.getByLabel("顔写真").setInputFiles({
+    name: "inspector-photo.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(photoBase64, "base64"),
+  });
+
+  const card = page.getByRole("img", { name: "カードプレビュー" });
+  const canvas = card.locator("canvas").first();
+  const cardBox = await card.boundingBox();
+  if (!cardBox) throw new Error("Card preview was not laid out");
+
+  await page.mouse.move(cardBox.x + 95, cardBox.y + 199);
+  await expect(card).toHaveAttribute("data-hovered-element", "photo");
+  await expect(card.locator(".konvajs-content")).toHaveCSS("cursor", "pointer");
+  await card.click({ position: { x: 95, y: 199 } });
+  await expect(card).toBeFocused();
+  await expect(card).toHaveAttribute("data-selected-element", "photo");
+  await expect(page.getByRole("heading", { name: "選択中：写真（写真）" })).toBeVisible();
+  await expect(page.getByText("写真を選択しました。")).toHaveAttribute("aria-live", "polite");
+  await expect(page.getByLabel("インスペクタ X")).toBeVisible();
+  await expect(page.getByLabel("インスペクタ Y")).toBeVisible();
+  await expect(page.getByLabel("インスペクタ 幅")).toBeVisible();
+  await expect(page.getByLabel("インスペクタ 高さ")).toBeVisible();
+
+  const beforeZoom = await canvas.screenshot();
+  await page.getByLabel("インスペクタ ズーム").fill("2");
+  await expect.poll(async () => Buffer.compare(await canvas.screenshot(), beforeZoom)).not.toBe(0);
+
+  await card.click({ position: { x: 52, y: 46 } });
+  await expect(card).toHaveAttribute("data-selected-element", "crest");
+  await expect(page.getByRole("heading", { name: "選択中：校章（校章）" })).toBeVisible();
+  await expect(page.getByLabel("インスペクタ 幅")).toBeVisible();
+  await expect(page.getByLabel("インスペクタ 高さ")).toBeVisible();
+  await expect(page.getByLabel("インスペクタ ズーム")).toHaveCount(0);
+});
+
 test("saved cards, autosave and JSON backup restore documents", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "storage", {
@@ -286,8 +339,10 @@ test("content elements can be selected, snapped, resized and reset", async ({ pa
   await expect(card).toHaveAttribute("data-selected-element", "crest");
   await card.click({ position: { x: 95, y: 199 } });
   await expect(card).toHaveAttribute("data-selected-element", "photo");
+  await page.getByRole("button", { name: "インスペクタを閉じる" }).click();
   await card.click({ position: { x: 637, y: 377 } });
   await expect(card).toHaveAttribute("data-selected-element", "seal");
+  await page.getByRole("button", { name: "インスペクタを閉じる" }).click();
   await card.click({ position: { x: 387, y: 205 } });
   await expect(card).toHaveAttribute("data-selected-element", "name");
 

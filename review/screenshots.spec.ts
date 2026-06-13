@@ -110,6 +110,8 @@ test("generate review screenshots", async ({ page }) => {
   await page.getByLabel("ズーム").fill("1.45");
   await page.getByLabel("横位置").fill("0.25");
   await page.getByLabel("縦位置").fill("-0.2");
+  await page.getByRole("img", { name: "カードプレビュー" }).click({ position: { x: 95, y: 199 } });
+  await expect(page.getByRole("heading", { name: "選択中：写真（写真）" })).toBeVisible();
   await capture(page, "03-photo.png");
 
   await openApp(page);

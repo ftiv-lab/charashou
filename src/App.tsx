@@ -1,5 +1,6 @@
 import type Konva from "konva";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { isEditableElement } from "./card/editor";
 import { createHistoryState, type EditorDocument, historyReducer } from "./card/history";
 import { DEFAULT_PHOTO_STATE, type PhotoAdjustmentKey } from "./card/photo";
 import {
@@ -8,12 +9,11 @@ import {
   type FieldStyle,
   type TemplateElement,
   type TemplateElementChange,
-  type TextElement,
   type ThemeConfig,
 } from "./card/template";
 import { CardPreview } from "./components/CardPreview";
 import { PropertyPanel } from "./components/PropertyPanel";
-import { getTextElementLabel, RightInspector } from "./components/RightInspector";
+import { getEditableElementLabel, RightInspector } from "./components/RightInspector";
 import { exportPng } from "./export";
 import { useDocumentPersistence } from "./storage/useDocumentPersistence";
 
@@ -32,8 +32,8 @@ export function App() {
   const stageRef = useRef<Konva.Stage>(null);
   const { template, photo } = history.present;
   const selectedElement = template.elements.find((element) => element.id === selectedElementId);
-  const selectedTextElement: TextElement | undefined =
-    selectedElement?.kind === "text" ? selectedElement : undefined;
+  const selectedEditableElement =
+    selectedElement && isEditableElement(selectedElement) ? selectedElement : undefined;
   const canUndo = history.past.length > 0;
   const canRedo = history.future.length > 0;
 
@@ -125,7 +125,7 @@ export function App() {
   const handleSelectionChange = (id?: string) => {
     setSelectedElementId(id);
     const element = template.elements.find((candidate) => candidate.id === id);
-    setIsInspectorOpen(element?.kind === "text");
+    setIsInspectorOpen(Boolean(element && isEditableElement(element)));
   };
 
   const handlePhotoUpload = (dataUrl: string) => {
@@ -264,24 +264,26 @@ export function App() {
             />
           </div>
           <p className="hint">
-            左の項目を変えると即反映されます。顔写真もアップロード可。仕上がりは「PNGで保存」で3倍解像度に。
+            カード上の要素（文字・写真・校章・印）をクリックすると、右で詳細編集できます
           </p>
         </section>
       </main>
       <p className="sr-only" role="status" aria-live="polite">
-        {selectedTextElement
-          ? `${getTextElementLabel(template, selectedTextElement)}を選択しました。`
+        {selectedEditableElement
+          ? `${getEditableElementLabel(template, selectedEditableElement)}を選択しました。`
           : ""}
       </p>
-      {selectedTextElement ? (
+      {selectedEditableElement ? (
         <RightInspector
           template={template}
-          element={selectedTextElement}
+          element={selectedEditableElement}
+          photo={photo}
           isOpen={isInspectorOpen}
           onToggle={() => setIsInspectorOpen((open) => !open)}
           onFieldValueChange={handleFieldChange}
           onFieldStyleChange={handleFieldStyleChange}
           onElementChange={handleInspectorElementChange}
+          onPhotoAdjustment={handlePhotoAdjustment}
         />
       ) : null}
     </>

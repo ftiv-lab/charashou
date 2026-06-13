@@ -76,6 +76,8 @@ export type SealElement = ElementBase & {
   kind: "seal";
 };
 
+export type EditableElement = TextElement | CrestElement | PhotoElement | SealElement;
+
 export type TemplateElement =
   | TextElement
   | RectElement
