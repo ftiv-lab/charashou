@@ -2,6 +2,13 @@
 
 状態の単一原本。新しいセッション/Codexは AGENTS.md の次にここを読む。
 
+## ▶ 現在の状態：一旦停止中（2026-06-15）
+- **charashou は 0015a まで実装して一旦停止**（中止ではない／いつでも再開可）。最後の実装＝背景地紋ジェネレーター。CI緑・公開中。
+- **再開手順**：① `AGENTS.md` → ② この `STATUS.md`（下のコンセプト＋Done/Next）→ ③ 直近 `docs/handoffs/0015a-*.md` と `docs/devlog.md` → ④ Next から1スライス選び、Claudeがブリーフ→Codex実装→Claude検証→コミット、のループを再開。
+- **再開候補**：0015b 丸印ジェネレーター ／ 0015c 校章・印・背景のアップロード＋AIプロンプト補助 ／ 0016 複数テンプレ。
+- **公開**：https://ftiv-lab.github.io/charashou/ ／ repo: github.com/ftiv-lab/charashou（ローカル `E:\projects\charashou`）。
+- **目視待ちの宿題**：0015a 地紋プリセット（ロゼット/ストライプ/ドット）の“上品さ”はオーナー確認待ち。ちゃちなら各既定値を微調整。
+
 ## Done
 - handoffs/0015a-background-pattern-generator：背景地紋をrepeatText/stripe/dots/rosetteLiteの編集可能ジェネレーターへ拡張。専用UI、テーマ色連動/個別色、旧pattern移行、保存/履歴/3倍PNG反映を追加。
 - handoffs/0014a-parametric-decorations-presets：校章/印/透かし/背景地紋を判別可能な生成パラメータ＋Konva手続き描画へ移行。デザインタブに各3プリセット、旧保存データ補完、Undo/JSON/IndexedDB/3倍PNG反映を追加。
